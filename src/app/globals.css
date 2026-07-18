@@ -49,3 +49,22 @@ body {
   animation: spin 1s linear infinite;
 }
 
+video::-webkit-media-controls { display: none !important; }
+video::-webkit-media-controls-enclosure { display: none !important; }
+video::-webkit-media-controls-panel { display: none !important; }
+video::-webkit-media-controls-overlay-play-button { display: none !important; }
+video::-webkit-media-controls-start-playback-button { display: none !important; }
+video::-internal-media-controls-overlay { display: none !important; }
+video::-moz-media-controls { display: none !important; }
+
+.review-sidebar { display: flex; }
+@media (max-width: 768px) {
+  .review-sidebar { display: none; }
+  .review-sidebar.open { display: flex; position: fixed; right: 0; top: 0; bottom: 0; width: 85vw; z-index: 50; border-left: 1px solid #333; }
+  .review-header { padding: 8px; }
+  .review-header h1 { font-size: 12px; max-width: 150px; }
+  .review-controls { padding: 8px; }
+  .review-controls input[type="range"] { height: 6px; }
+  .review-controls .gap-4 { gap: 6px; }
+}
+

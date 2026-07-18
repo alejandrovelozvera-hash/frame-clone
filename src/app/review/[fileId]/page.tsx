@@ -36,6 +36,7 @@ function ReviewPage() {
   const [shareUrl, setShareUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'comments' | 'annotations' | 'versions' | 'reviews'>('comments');
   const [videoReady, setVideoReady] = useState(false);
   const [videoError, setVideoError] = useState('');
@@ -467,7 +468,7 @@ function ReviewPage() {
 
   return (
     <div className="h-screen bg-frame-950 flex flex-col overflow-hidden">
-      <header className="bg-frame-900 border-b border-frame-800 px-4 py-2 flex items-center justify-between shrink-0">
+      <header className="review-header bg-frame-900 border-b border-frame-800 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push(`/project/${projectId}`)} className="text-frame-400 hover:text-white transition-colors">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -502,6 +503,12 @@ function ReviewPage() {
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${drawing ? 'bg-blue-600 text-white' : 'bg-frame-800 text-frame-300 hover:text-white'}`}
           >
             Annotate
+          </button>
+          <button
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            className="md:hidden px-2 py-1.5 rounded-lg text-xs font-medium bg-frame-800 text-frame-300 hover:text-white"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <button
             onClick={() => setShowComments(!showComments)}
@@ -595,7 +602,7 @@ function ReviewPage() {
             )}
           </div>
 
-          <div className="bg-frame-900 px-4 py-2 border-t border-frame-800">
+          <div className="review-controls bg-frame-900 px-4 py-2 border-t border-frame-800">
             <div className="flex items-center gap-4">
               <button onClick={togglePlay} className="text-white hover:text-blue-400 transition-colors">
                 {playing ? (
@@ -649,7 +656,10 @@ function ReviewPage() {
           </div>
         </div>
 
-        <div className="w-80 bg-frame-900 border-l border-frame-800 flex flex-col shrink-0">
+        {mobileSidebarOpen && (
+          <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileSidebarOpen(false)} />
+        )}
+        <div className={`review-sidebar ${mobileSidebarOpen ? 'open' : ''} w-80 bg-frame-900 border-l border-frame-800 flex flex-col shrink-0`}>
           <div className="flex border-b border-frame-800">
             {(['comments', 'annotations', 'versions', 'reviews'] as const).map((tab) => (
               <button
