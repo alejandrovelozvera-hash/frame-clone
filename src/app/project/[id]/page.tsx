@@ -256,7 +256,7 @@ function ProjectPage() {
                     <div className="aspect-video bg-frame-900/50 relative flex items-center justify-center">
                       {file.thumbnail_path ? (
                         <img
-                          src={`/${file.thumbnail_path.replace(/\\/g, '/')}`}
+                          src={`/api/files/thumbnail/${file.id}`}
                           alt={file.original_name}
                           className="w-full h-full object-contain bg-frame-950"
                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}

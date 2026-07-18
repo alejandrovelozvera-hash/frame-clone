@@ -751,7 +751,7 @@ function ReviewPage() {
                     <div key={comment.id} className={`card-subtle rounded-xl overflow-hidden transition-all ${comment.status === 'resolved' ? 'opacity-50' : ''}`}>
                       <div className="p-3">
                         <div className="flex items-center justify-between mb-1.5">
-                          <div className="flex items-center gap-2">
+            <div className="review-header-tools flex items-center gap-2">
                             <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
                               <span className="text-[9px] font-medium text-blue-400">{(comment.user_name || 'U')[0]}</span>
                             </div>
