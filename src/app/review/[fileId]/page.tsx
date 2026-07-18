@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { files, comments, annotations as annotationsApi } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 import { useToast } from '@/components/toast';
+import { LoadingSkeleton } from '@/components/loading-skeleton';
 
 function ReviewPage() {
   const { user, loading: authLoading } = useAuth();
@@ -44,6 +45,7 @@ function ReviewPage() {
   const [videoError, setVideoError] = useState('');
   const [videoBuffering, setVideoBuffering] = useState(false);
   const [fileProcessing, setFileProcessing] = useState(false);
+  const [fitMode, setFitMode] = useState<'contain' | 'fill'>('contain');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -462,11 +464,7 @@ function ReviewPage() {
   };
 
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-frame-950 flex items-center justify-center">
-        <div className="text-frame-400">Loading...</div>
-      </div>
-    );
+    return <LoadingSkeleton type="player" />;
   }
 
   if (!file) return null;
@@ -557,6 +555,7 @@ function ReviewPage() {
             <video
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
+              style={{ objectFit: fitMode }}
               src={streamUrl}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
@@ -583,7 +582,7 @@ function ReviewPage() {
               <canvas
                 ref={canvasRef}
                 className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{ pointerEvents: drawing ? 'auto' : 'none' as any, cursor: drawing ? 'crosshair' : 'default' }}
+                style={{ pointerEvents: drawing ? 'auto' : 'none' as any, cursor: drawing ? 'crosshair' : 'default', objectFit: fitMode }}
                 onMouseDown={drawing ? handleCanvasMouseDown : undefined}
                 onMouseMove={drawing ? handleCanvasMouseMove : undefined}
                 onMouseUp={drawing ? handleCanvasMouseUp : undefined}
@@ -657,9 +656,25 @@ function ReviewPage() {
 
               <span className="text-[11px] text-frame-500 font-mono tabular-nums">{formatTime(duration)}</span>
 
+              <button
+                onClick={() => setFitMode(f => f === 'contain' ? 'fill' : 'contain')}
+                className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90"
+                title={fitMode === 'contain' ? 'Llenar pantalla' : 'Ajustar video'}
+              >
+                {fitMode === 'contain' ? (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                )}
+              </button>
+
               <button onClick={toggleFullscreen} className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
                 </svg>
               </button>
             </div>

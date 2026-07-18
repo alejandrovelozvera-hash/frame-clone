@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useToast } from '@/components/toast';
+import { LoadingSkeleton } from '@/components/loading-skeleton';
 
 export default function SharedView() {
   const params = useParams();
@@ -75,11 +76,7 @@ export default function SharedView() {
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <div className="text-gray-400">Cargando...</div>
-    </div>
-  );
+  if (loading) return <LoadingSkeleton type="player" />;
 
   if (error || !data) return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -103,6 +100,7 @@ export default function SharedView() {
             <video
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
+              style={{ objectFit: 'contain' }}
               src={`/api/files/stream/${data.file_id}`}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}

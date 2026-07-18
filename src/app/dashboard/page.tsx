@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { projects } from '@/lib/api';
 import { useToast } from '@/components/toast';
+import { LoadingSkeleton } from '@/components/loading-skeleton';
 
 function DashboardPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -64,11 +65,7 @@ function DashboardPage() {
   };
 
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-frame-950 flex items-center justify-center">
-        <div className="text-frame-400">Loading...</div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -152,12 +149,20 @@ function DashboardPage() {
         )}
 
         {projectList.length === 0 ? (
-          <div className="text-center py-24">
-            <svg className="w-12 h-12 mx-auto text-frame-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-            <p className="text-frame-400 text-lg font-medium mb-1">Sin proyectos</p>
-            <p className="text-frame-600 text-sm">Creá tu primer proyecto para empezar</p>
+          <div className="text-center py-24 flex flex-col items-center">
+            <div className="w-16 h-16 rounded-2xl bg-frame-900/80 border border-frame-800/50 flex items-center justify-center mb-5">
+              <svg className="w-7 h-7 text-frame-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </div>
+            <p className="text-frame-300 text-lg font-medium mb-1">Sin proyectos</p>
+            <p className="text-frame-500 text-sm mb-6">Creá tu primer proyecto para empezar a revisar videos</p>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.97]"
+            >
+              Nuevo proyecto
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

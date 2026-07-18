@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/toast';
+import { LoadingSkeleton } from '@/components/loading-skeleton';
 import { projects, files } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 
@@ -147,11 +148,7 @@ function ProjectPage() {
   };
 
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-frame-950 flex items-center justify-center">
-        <div className="text-frame-400">Loading...</div>
-      </div>
-    );
+    return <LoadingSkeleton type="cards" />;
   }
 
   if (!project) return null;
@@ -231,12 +228,20 @@ function ProjectPage() {
         )}
 
         {project.files?.length === 0 ? (
-          <div className="text-center py-24">
-            <svg className="w-12 h-12 mx-auto text-frame-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
-            </svg>
-            <p className="text-frame-400 text-lg font-medium mb-1">Sin archivos</p>
-            <p className="text-frame-600 text-sm">Subí un video para empezar a revisar</p>
+          <div className="text-center py-24 flex flex-col items-center">
+            <div className="w-16 h-16 rounded-2xl bg-frame-900/80 border border-frame-800/50 flex items-center justify-center mb-5">
+              <svg className="w-7 h-7 text-frame-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+            <p className="text-frame-300 text-lg font-medium mb-1">Sin archivos</p>
+            <p className="text-frame-500 text-sm mb-6">Subí un video para empezar a revisar</p>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.97]"
+            >
+              Subir video
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -253,7 +258,7 @@ function ProjectPage() {
                         <img
                           src={`/${file.thumbnail_path.replace(/\\/g, '/')}`}
                           alt={file.original_name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain bg-frame-950"
                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         />
                       ) : (
