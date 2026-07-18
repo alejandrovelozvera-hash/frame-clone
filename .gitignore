@@ -1,0 +1,14 @@
+node_modules/
+.next/
+data/
+uploads/videos/
+uploads/thumbnails/
+uploads/avatars/
+backend/uploads/
+backend/backend.log
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.local
+next-env.d.ts
