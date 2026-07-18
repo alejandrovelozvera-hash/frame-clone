@@ -602,22 +602,22 @@ function ReviewPage() {
             )}
           </div>
 
-          <div className="review-controls bg-frame-900 px-4 py-2 border-t border-frame-800">
-            <div className="flex items-center gap-4">
-              <button onClick={togglePlay} className="text-white hover:text-blue-400 transition-colors">
+          <div className="review-controls glass-panel rounded-none px-4 py-2 border-t border-frame-700/30">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button onClick={togglePlay} className="p-1.5 text-white hover:text-blue-400 transition-all active:scale-90">
                 {playing ? (
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 )}
               </button>
 
-              <div className="flex items-center gap-2">
-                <button onClick={toggleMute} className="text-frame-400 hover:text-white transition-colors">
+              <div className="flex items-center gap-1.5">
+                <button onClick={toggleMute} className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90">
                   {muted || volume === 0 ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" /></svg>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" /></svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" /></svg>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" /></svg>
                   )}
                 </button>
                 <input
@@ -627,11 +627,11 @@ function ReviewPage() {
                   step="0.05"
                   value={muted ? 0 : volume}
                   onChange={handleVolumeChange}
-                  className="w-20 h-1 accent-blue-500"
+                  className="w-16 sm:w-20"
                 />
               </div>
 
-              <span className="text-xs text-frame-400 font-mono min-w-[80px]">{formatTime(currentTime)}</span>
+              <span className="text-[11px] text-frame-400 font-mono min-w-[70px] tabular-nums">{formatTime(currentTime)}</span>
 
               <div className="flex-1">
                 <input
@@ -641,15 +641,15 @@ function ReviewPage() {
                   step="0.01"
                   value={currentTime}
                   onChange={(e) => handleSeek(parseFloat(e.target.value))}
-                  className="w-full h-1 accent-blue-500 cursor-pointer"
+                  className="w-full"
                 />
               </div>
 
-              <span className="text-xs text-frame-500 font-mono">{formatTime(duration)}</span>
+              <span className="text-[11px] text-frame-500 font-mono tabular-nums">{formatTime(duration)}</span>
 
-              <button onClick={toggleFullscreen} className="text-frame-400 hover:text-white transition-colors">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              <button onClick={toggleFullscreen} className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
               </button>
             </div>
@@ -660,14 +660,22 @@ function ReviewPage() {
           <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileSidebarOpen(false)} />
         )}
         <div className={`review-sidebar ${mobileSidebarOpen ? 'open' : ''} w-80 bg-frame-900 border-l border-frame-800 flex flex-col shrink-0`}>
-          <div className="flex border-b border-frame-800">
-            {(['comments', 'annotations', 'versions', 'reviews'] as const).map((tab) => (
+          <div className="flex gap-1 p-2 bg-frame-950/50 border-b border-frame-800/50">
+            {[
+              { id: 'comments', label: 'Comentarios', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+              { id: 'annotations', label: 'Notas', icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z' },
+              { id: 'versions', label: 'Versiones', icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4' },
+              { id: 'reviews', label: 'Revisiones', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+            ].map((tab) => (
               <button
-                key={tab}
-                onClick={() => setSidebarTab(tab)}
-                className={`flex-1 py-2.5 text-xs font-medium transition-colors capitalize ${sidebarTab === tab ? 'text-white border-b-2 border-blue-500' : 'text-frame-500 hover:text-frame-300'}`}
+                key={tab.id}
+                onClick={() => setSidebarTab(tab.id as any)}
+                className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-lg text-[10px] font-medium transition-all ${sidebarTab === tab.id ? 'bg-blue-500/10 text-blue-400' : 'text-frame-500 hover:text-frame-300 hover:bg-frame-800/50'}`}
               >
-                {tab}
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
+                </svg>
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
@@ -675,58 +683,90 @@ function ReviewPage() {
           <div className="flex-1 overflow-y-auto scrollbar-thin">
             {sidebarTab === 'comments' && (
               <div className="p-3">
-                <div className="flex gap-2 mb-3">
+                <div className="glass-panel rounded-xl p-2 mb-3 flex gap-2">
                   <input
                     type="text"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-                    placeholder={`Comment at ${formatTime(currentTime)}...`}
-                    className="flex-1 px-3 py-2 bg-frame-800 border border-frame-700 rounded-lg text-white text-xs placeholder-frame-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder={`Comentar en ${formatTime(currentTime)}...`}
+                    className="flex-1 px-3 py-2 bg-frame-800/50 border border-frame-700/30 rounded-lg text-white text-xs placeholder-frame-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all"
                   />
-                  <button onClick={handleAddComment} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
-                    Post
+                  <button onClick={handleAddComment} className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium transition-all active:scale-[0.97]">
+                    Enviar
                   </button>
                 </div>
 
                 <div className="space-y-2">
+                  {commentList.filter((c: any) => !c.parent_id).length === 0 && (
+                    <div className="text-center py-12">
+                      <svg className="w-8 h-8 mx-auto text-frame-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <p className="text-frame-500 text-xs">Sin comentarios aún</p>
+                      <p className="text-frame-600 text-[10px] mt-1">Pausá el video y comentá en un frame específico</p>
+                    </div>
+                  )}
                   {commentList.filter((c: any) => !c.parent_id).map((comment: any) => (
-                    <div key={comment.id} className={`p-3 rounded-lg ${comment.status === 'resolved' ? 'bg-frame-800/50 opacity-60' : 'bg-frame-800'}`}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-frame-400 font-medium">{comment.user_name || 'User'}</span>
-                        <div className="flex items-center gap-2">
-                          {comment.timecode !== null && (
-                            <button
-                              onClick={() => handleSeek(comment.timecode)}
-                              className="text-xs text-blue-400 hover:text-blue-300 font-mono"
-                            >
-                              {formatTime(comment.timecode)}
-                            </button>
-                          )}
-                          {comment.status === 'active' && (
-                            <button onClick={() => handleResolveComment(comment.id)} className="text-xs text-frame-500 hover:text-green-400">
-                              resolve
-                            </button>
+                    <div key={comment.id} className={`card-subtle rounded-xl overflow-hidden transition-all ${comment.status === 'resolved' ? 'opacity-50' : ''}`}>
+                      <div className="p-3">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                              <span className="text-[9px] font-medium text-blue-400">{(comment.user_name || 'U')[0]}</span>
+                            </div>
+                            <span className="text-xs text-frame-300 font-medium">{comment.user_name || 'Usuario'}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {comment.timecode !== null && (
+                              <button
+                                onClick={() => handleSeek(comment.timecode)}
+                                className="px-1.5 py-0.5 bg-blue-500/10 rounded text-[10px] text-blue-400 hover:bg-blue-500/20 transition-all font-mono"
+                              >
+                                {formatTime(comment.timecode)}
+                              </button>
+                            )}
+                            {comment.status === 'active' && (
+                              <button onClick={() => handleResolveComment(comment.id)} className="p-1 text-frame-500 hover:text-green-400 transition-colors" title="Resolver">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-xs text-white/90 leading-relaxed">{comment.content}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-[10px] text-frame-500">{formatDate(comment.created_at)}</span>
+                          {comment.status === 'resolved' && (
+                            <span className="text-[10px] text-green-500/70 flex items-center gap-1">
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                              Resuelto
+                            </span>
                           )}
                         </div>
                       </div>
-                      <p className="text-xs text-white">{comment.content}</p>
-                      {comment.status === 'resolved' && (
-                        <span className="text-xs text-green-500 mt-1 block">Resolved</span>
-                      )}
-                      <span className="text-xs text-frame-600 mt-1 block">{formatDate(comment.created_at)}</span>
 
-                      {comment.replies?.map((reply: any) => (
-                        <div key={reply.id} className="ml-4 mt-2 p-2 bg-frame-900 rounded">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-frame-400">{reply.user_name || 'User'}</span>
-                            {reply.timecode !== null && (
-                              <button onClick={() => handleSeek(reply.timecode)} className="text-xs text-blue-400 hover:text-blue-300 font-mono">{formatTime(reply.timecode)}</button>
-                            )}
-                          </div>
-                          <p className="text-xs text-white">{reply.content}</p>
+                      {comment.replies?.length > 0 && (
+                        <div className="border-t border-frame-800/30 bg-frame-950/30 px-3 py-2 space-y-2">
+                          {comment.replies?.map((reply: any) => (
+                            <div key={reply.id} className="flex gap-2">
+                              <div className="w-4 h-4 rounded-full bg-frame-700/50 flex items-center justify-center shrink-0 mt-0.5">
+                                <span className="text-[7px] font-medium text-frame-400">{(reply.user_name || 'U')[0]}</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[11px] text-frame-300 font-medium">{reply.user_name || 'Usuario'}</span>
+                                  {reply.timecode !== null && (
+                                    <button onClick={() => handleSeek(reply.timecode)} className="text-[9px] text-blue-400/70 hover:text-blue-400 font-mono">{formatTime(reply.timecode)}</button>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-white/80 mt-0.5">{reply.content}</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
                   ))}
                 </div>
@@ -736,25 +776,25 @@ function ReviewPage() {
             {sidebarTab === 'annotations' && (
               <div className="p-3">
                 {drawing && (
-                  <div className="mb-3 p-3 bg-frame-800 rounded-lg">
-                    <p className="text-xs text-frame-300 mb-2">Drawing mode active</p>
+                  <div className="glass-panel rounded-xl p-3 mb-3">
+                    <p className="text-[10px] text-frame-400 uppercase tracking-wider font-medium mb-2">Modo dibujo</p>
                     <div className="flex gap-1 mb-2">
                       {(['freehand', 'arrow', 'rectangle', 'highlight'] as const).map((mode) => (
                         <button
                           key={mode}
                           onClick={() => setDrawingMode(mode)}
-                          className={`px-2 py-1 text-xs rounded ${drawingMode === mode ? 'bg-blue-600 text-white' : 'bg-frame-700 text-frame-300'}`}
+                          className={`flex-1 px-2 py-1.5 text-[10px] font-medium rounded-lg transition-all ${drawingMode === mode ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-frame-800 text-frame-400 hover:text-frame-200 hover:bg-frame-700'}`}
                         >
-                          {mode}
+                          {mode === 'freehand' ? 'Dibujo' : mode === 'arrow' ? 'Flecha' : mode === 'rectangle' ? 'Rectángulo' : 'Resaltar'}
                         </button>
                       ))}
                     </div>
-                    <div className="flex gap-1">
-                      {['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFFFFF'].map((color) => (
+                    <div className="flex gap-1.5">
+                      {['#FF0000', '#00FF00', '#3B82F6', '#F59E0B', '#A855F7', '#06B6D4', '#FFFFFF'].map((color) => (
                         <button
                           key={color}
                           onClick={() => setDrawColor(color)}
-                          className={`w-5 h-5 rounded-full ${drawColor === color ? 'ring-2 ring-white ring-offset-1 ring-offset-frame-800' : ''}`}
+                          className={`w-6 h-6 rounded-full transition-all ${drawColor === color ? 'ring-2 ring-white scale-110' : 'hover:scale-110'}`}
                           style={{ backgroundColor: color }}
                         />
                       ))}
@@ -762,26 +802,34 @@ function ReviewPage() {
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
+                  {annotationsList.length === 0 && (
+                    <div className="text-center py-12">
+                      <svg className="w-8 h-8 mx-auto text-frame-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                      <p className="text-frame-500 text-xs">Sin anotaciones</p>
+                      <p className="text-frame-600 text-[10px] mt-1">Activá el modo dibujo para anotar</p>
+                    </div>
+                  )}
                   {annotationsList.map((ann: any) => (
-                    <div key={ann.id} className="p-2 bg-frame-800 rounded-lg flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: ann.color }} />
-                          <span className="text-xs text-frame-300">{ann.type}</span>
+                    <div key={ann.id} className="card-subtle rounded-lg px-3 py-2 flex items-center justify-between group">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-2.5 h-2.5 rounded-full ring-2 ring-black/20 shrink-0" style={{ backgroundColor: ann.color }} />
+                        <div>
+                          <span className="text-[11px] text-frame-300 font-medium capitalize">{ann.type === 'freehand' ? 'Dibujo' : ann.type === 'arrow' ? 'Flecha' : ann.type === 'rectangle' ? 'Rectángulo' : ann.type}</span>
+                          <button onClick={() => handleSeek(ann.timecode)} className="text-[10px] text-blue-400/70 hover:text-blue-400 font-mono block transition-colors">
+                            {formatTime(ann.timecode)}
+                          </button>
                         </div>
-                        <button onClick={() => handleSeek(ann.timecode)} className="text-xs text-blue-400 font-mono mt-1 block">
-                          {formatTime(ann.timecode)}
-                        </button>
                       </div>
-                      <button onClick={() => handleDeleteAnnotation(ann.id)} className="text-frame-500 hover:text-red-400 text-xs">
-                        delete
+                      <button onClick={() => handleDeleteAnnotation(ann.id)} className="p-1.5 text-frame-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all" title="Eliminar">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                       </button>
                     </div>
                   ))}
-                  {annotationsList.length === 0 && (
-                    <p className="text-xs text-frame-500 text-center py-8">No annotations yet</p>
-                  )}
                 </div>
               </div>
             )}
@@ -790,22 +838,38 @@ function ReviewPage() {
               <div className="p-3">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-2 bg-frame-800 hover:bg-frame-700 text-white rounded-lg text-xs font-medium transition-colors mb-3"
+                  className="w-full py-2.5 glass-panel hover:bg-frame-800/80 text-white rounded-xl text-xs font-medium transition-all active:scale-[0.98] mb-3 flex items-center justify-center gap-2"
                 >
-                  Upload New Version
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  Subir nueva versión
                 </button>
                 <input ref={fileInputRef} type="file" accept="video/*" onChange={handleNewVersionUpload} className="hidden" />
 
-                <div className="space-y-2">
+                {(!file.versions || file.versions.length === 0) && (
+                  <div className="text-center py-12">
+                    <svg className="w-8 h-8 mx-auto text-frame-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <p className="text-frame-500 text-xs">Sin versiones</p>
+                  </div>
+                )}
+                <div className="space-y-1.5">
                   {file.versions?.map((v: any) => (
-                    <div key={v.id} className="p-3 bg-frame-800 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-white font-medium">v{v.version_number}</span>
-                        <span className="text-xs text-frame-500">{v.duration ? `${Math.round(v.duration)}s` : '--'}</span>
+                    <div key={v.id} className="card-subtle rounded-xl p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                          <span className="text-xs font-bold text-blue-400">v{v.version_number}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-white font-medium">Versión {v.version_number}</span>
+                          <div className="text-[10px] text-frame-500 mt-0.5">
+                            {v.uploader_name || 'Unknown'} · {formatDate(v.created_at)}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-frame-500 mt-1">
-                        {v.uploader_name || 'Unknown'} &middot; {formatDate(v.created_at)}
-                      </div>
+                      <span className="text-[10px] text-frame-500">{v.duration ? `${Math.round(v.duration)}s` : '--'}</span>
                     </div>
                   ))}
                 </div>
@@ -814,26 +878,41 @@ function ReviewPage() {
 
             {sidebarTab === 'reviews' && (
               <div className="p-3">
-                <p className="text-xs text-frame-400 mb-3">Review workflow</p>
-                <div className="space-y-2">
+                <div className="glass-panel rounded-xl p-3 mb-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs text-frame-300 font-medium">Pendientes</p>
+                    <span className="text-[10px] text-frame-500">{commentList.filter(c => c.status === 'active').length} items</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
                   {commentList
                     .filter((c: any) => c.status === 'active')
                     .map((c: any) => (
-                      <div key={c.id} className="p-2 bg-frame-800 rounded-lg">
-                        <p className="text-xs text-white truncate">{c.content}</p>
-                        <div className="flex items-center gap-2 mt-1">
+                      <div key={c.id} className="card-subtle rounded-xl p-3">
+                        <p className="text-xs text-white/90 line-clamp-2 mb-2">{c.content}</p>
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleResolveComment(c.id)}
-                            className="text-xs text-green-500 hover:text-green-400"
+                            className="flex-1 px-2.5 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1"
                           >
-                            Approve
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                            Aprobar
                           </button>
-                          <button className="text-xs text-red-500 hover:text-red-400">Request Changes</button>
+                          <button className="flex-1 px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            Cambios
+                          </button>
                         </div>
                       </div>
                     ))}
-                  {commentList.filter((c: any) => c.status === 'active').length === 0 && (
-                    <p className="text-xs text-frame-500 text-center py-4">No pending items</p>
+                  {commentList.filter(c => c.status === 'active').length === 0 && (
+                    <div className="text-center py-12">
+                      <svg className="w-8 h-8 mx-auto text-frame-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-frame-500 text-xs">Todo resuelto</p>
+                      <p className="text-frame-600 text-[10px] mt-1">No hay comentarios pendientes</p>
+                    </div>
                   )}
                 </div>
               </div>
