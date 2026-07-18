@@ -2,13 +2,15 @@ import db, { UPLOADS_DIR } from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
 
+const THUMB_DIR = path.join(path.dirname(UPLOADS_DIR), 'thumbnails');
+
 export function cleanOldFiles(days: number = 7): { deleted: number; freed: number } {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
   const cutoffStr = cutoff.toISOString().replace('T', ' ').slice(0, 19);
 
   const oldFiles = db.prepare(
-    `SELECT f.id, f.name, v.file_path FROM files f
+    `SELECT f.id, f.name, f.original_name, v.file_path FROM files f
      LEFT JOIN versions v ON v.file_id = f.id
      WHERE f.created_at < ?`
   ).all(cutoffStr) as any[];
@@ -23,9 +25,12 @@ export function cleanOldFiles(days: number = 7): { deleted: number; freed: numbe
         freed += stat.size;
         fs.unlinkSync(file.file_path);
       }
-      const dirPath = path.join(UPLOADS_DIR, path.basename(file.name || ''));
-      if (fs.existsSync(dirPath)) {
-        fs.rmSync(dirPath, { recursive: true, force: true });
+
+      // clean thumbnail
+      const thumbName = path.parse(file.original_name || file.name || '').name + '.jpg';
+      const thumbPath = path.join(THUMB_DIR, thumbName);
+      if (fs.existsSync(thumbPath)) {
+        fs.unlinkSync(thumbPath);
       }
     } catch {}
 

@@ -45,7 +45,7 @@ function ReviewPage() {
   const [videoError, setVideoError] = useState('');
   const [videoBuffering, setVideoBuffering] = useState(false);
   const [fileProcessing, setFileProcessing] = useState(false);
-  const [fitMode, setFitMode] = useState<'contain' | 'fill'>('contain');
+  const [fitMode, setFitMode] = useState<'contain' | 'cover' | 'fill'>('contain');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -236,12 +236,16 @@ function ReviewPage() {
     if (!containerRef.current) return;
     if (document.fullscreenElement) {
       document.exitFullscreen();
-      setIsFullscreen(false);
     } else {
       containerRef.current.requestFullscreen();
-      setIsFullscreen(true);
     }
   };
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
 
   const formatTime = (t: number) => {
     const m = Math.floor(t / 60);
@@ -529,7 +533,7 @@ function ReviewPage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 flex flex-col bg-black relative" ref={containerRef}>
+        <div className="flex-1 flex flex-col bg-black relative review-container" ref={containerRef}>
           <div className="flex-1 relative flex items-center justify-center">
             {fileProcessing && (
               <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/60">
@@ -657,15 +661,26 @@ function ReviewPage() {
               <span className="text-[11px] text-frame-500 font-mono tabular-nums">{formatTime(duration)}</span>
 
               <button
-                onClick={() => setFitMode(f => f === 'contain' ? 'fill' : 'contain')}
-                className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90"
-                title={fitMode === 'contain' ? 'Llenar pantalla' : 'Ajustar video'}
+                onClick={() => setFitMode(f => f === 'contain' ? 'cover' : f === 'cover' ? 'fill' : 'contain')}
+                className={`p-1.5 transition-all active:scale-90 ${
+                  fitMode === 'cover' ? 'text-blue-400' : fitMode === 'fill' ? 'text-frame-200' : 'text-frame-400 hover:text-white'
+                }`}
+                title={
+                  fitMode === 'contain' ? 'Ajustar (contain)' :
+                  fitMode === 'cover' ? 'Cubrir (cover)' : 'Llenar (fill)'
+                }
               >
-                {fitMode === 'contain' ? (
+                {fitMode === 'contain' && (
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                   </svg>
-                ) : (
+                )}
+                {fitMode === 'cover' && (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                  </svg>
+                )}
+                {fitMode === 'fill' && (
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                   </svg>

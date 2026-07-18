@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import db, { UPLOADS_DIR } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
-import { needsTranscode, transcodeToH264, getTranscodedPath } from '@/lib/transcode';
+import { needsTranscode, transcodeToH264, getTranscodedPath, extractThumbnail, getVideoDimensions } from '@/lib/transcode';
 
 export async function POST(request: NextRequest, { params }: { params: { projectId: string } }) {
   const payload = verifyToken(request);
@@ -49,6 +49,22 @@ export async function POST(request: NextRequest, { params }: { params: { project
         db.prepare('UPDATE files SET size = ?, status = ? WHERE id = ?').run(outStat.size, 'ready', fileId);
       } else {
         db.prepare('UPDATE files SET status = ? WHERE id = ?').run('ready', fileId);
+      }
+
+      // generate thumbnail
+      const thumbDir = path.join(path.dirname(UPLOADS_DIR), 'thumbnails');
+      const thumbPath = extractThumbnail(filePath, thumbDir, fileName);
+
+      // detect dimensions
+      const dims = await getVideoDimensions(filePath);
+
+      if (thumbPath || dims) {
+        const updates: string[] = [];
+        const vals: any[] = [];
+        if (thumbPath) { updates.push('thumbnail_path = ?'); vals.push(thumbPath); }
+        if (dims) { updates.push('width = ?, height = ?, duration = ?'); vals.push(dims.width, dims.height, dims.duration); }
+        vals.push(fileId);
+        db.prepare(`UPDATE files SET ${updates.join(', ')} WHERE id = ?`).run(...vals);
       }
     } catch (err) {
       db.prepare('UPDATE files SET status = ? WHERE id = ?').run('error', fileId);

@@ -65,3 +65,34 @@ export function getTranscodedPath(filePath: string): string {
   const base = path.basename(filePath, ext);
   return path.join(dir, `${base}_h264${ext}`);
 }
+
+export function extractThumbnail(videoPath: string, outputDir: string, fileName: string): string {
+  if (!hasFFmpeg()) return '';
+  const thumbName = `${path.parse(fileName).name}.jpg`;
+  const thumbPath = path.join(outputDir, thumbName);
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+  try {
+    execSync(
+      `ffmpeg -i "${videoPath}" -ss 00:00:01 -vframes 1 -q:v 2 "${thumbPath}" -y`,
+      { stdio: 'ignore', timeout: 15000 }
+    );
+    if (fs.existsSync(thumbPath)) return thumbPath;
+  } catch {}
+  return '';
+}
+
+export async function getVideoDimensions(videoPath: string): Promise<{ width: number; height: number; duration: number } | null> {
+  if (!hasFFmpeg()) return null;
+  try {
+    const output = execSync(
+      `ffprobe -v error -select_streams v:0 -show_entries stream=width,height,duration -of json "${videoPath}"`,
+      { encoding: 'utf-8', timeout: 10000 }
+    );
+    const data = JSON.parse(output);
+    const s = data.streams?.[0];
+    if (!s) return null;
+    return { width: Number(s.width), height: Number(s.height), duration: Number(s.duration || 0) };
+  } catch {
+    return null;
+  }
+}

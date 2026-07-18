@@ -96,6 +96,14 @@ video::-moz-media-controls { display: none !important; }
   .review-controls .gap-4 { gap: 6px; }
 }
 
+.review-container:fullscreen {
+  background: black;
+}
+.review-container:fullscreen video {
+  max-height: 100vh !important;
+  max-width: 100vw !important;
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
