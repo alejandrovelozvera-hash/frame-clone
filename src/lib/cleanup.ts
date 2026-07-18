@@ -1,8 +1,6 @@
-import db, { UPLOADS_DIR } from '@/lib/db';
+import db, { UPLOADS_DIR, THUMB_DIR } from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
-
-const THUMB_DIR = path.join(path.dirname(UPLOADS_DIR), 'thumbnails');
 
 export function cleanOldFiles(days: number = 7): { deleted: number; freed: number } {
   const cutoff = new Date();

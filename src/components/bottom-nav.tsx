@@ -45,7 +45,7 @@ export default function BottomNav() {
   };
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 pb-safe" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="bg-frame-900/90 backdrop-blur-2xl border-t border-frame-700/40 flex items-center justify-around py-1">
         {tabs.map(tab => {
           const active = isActive(tab);

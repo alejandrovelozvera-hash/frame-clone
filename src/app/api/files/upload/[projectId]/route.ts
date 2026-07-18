@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
-import db, { UPLOADS_DIR } from '@/lib/db';
+import db, { UPLOADS_DIR, THUMB_DIR } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 import { needsTranscode, transcodeToH264, getTranscodedPath, extractThumbnail, getVideoDimensions } from '@/lib/transcode';
 
@@ -52,8 +52,7 @@ export async function POST(request: NextRequest, { params }: { params: { project
       }
 
       // generate thumbnail
-      const thumbDir = path.join(path.dirname(UPLOADS_DIR), 'thumbnails');
-      const thumbPath = extractThumbnail(filePath, thumbDir, fileName);
+      const thumbPath = extractThumbnail(filePath, THUMB_DIR, fileName);
 
       // detect dimensions
       const dims = await getVideoDimensions(filePath);
