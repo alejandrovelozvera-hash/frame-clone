@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 
-export async function GET(request: NextRequest, { params }: { params: { projectId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const payload = verifyToken(request);
   if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: { projectI
     JOIN files f ON f.id = sl.file_id
     WHERE sl.project_id = ?
     ORDER BY sl.created_at DESC
-  `).all(params.projectId);
+  `).all(params.id);
 
   return NextResponse.json(links);
 }
