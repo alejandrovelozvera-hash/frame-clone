@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
-import db from '@/lib/db';
+import db, { UPLOADS_DIR } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
-
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads', 'videos');
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 export async function POST(request: NextRequest, { params }: { params: { projectId: string } }) {
   const payload = verifyToken(request);
