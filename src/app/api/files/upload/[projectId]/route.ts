@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import db, { UPLOADS_DIR } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
+import { needsTranscode, transcodeToH264, getTranscodedPath } from '@/lib/transcode';
 
 export async function POST(request: NextRequest, { params }: { params: { projectId: string } }) {
   const payload = verifyToken(request);
@@ -27,15 +28,34 @@ export async function POST(request: NextRequest, { params }: { params: { project
 
   db.prepare(`
     INSERT INTO files (id, project_id, name, original_name, mime_type, size, status, uploaded_by)
-    VALUES (?, ?, ?, ?, ?, ?, 'ready', ?)
+    VALUES (?, ?, ?, ?, ?, ?, 'processing', ?)
   `).run(fileId, params.projectId, fileName, file.name, file.type || 'video/mp4', fileSize, payload.userId);
 
+  const versionId = uuidv4();
   db.prepare(`
     INSERT INTO versions (id, file_id, version_number, file_path, size, uploaded_by)
     VALUES (?, ?, 1, ?, ?, ?)
-  `).run(uuidv4(), fileId, filePath, fileSize, payload.userId);
+  `).run(versionId, fileId, filePath, fileSize, payload.userId);
+
+  process.nextTick(async () => {
+    try {
+      if (needsTranscode(filePath)) {
+        const outPath = getTranscodedPath(filePath);
+        await transcodeToH264(filePath, outPath);
+        const outStat = fs.statSync(outPath);
+        fs.unlinkSync(filePath);
+        fs.renameSync(outPath, filePath);
+        db.prepare('UPDATE versions SET size = ? WHERE id = ?').run(outStat.size, versionId);
+        db.prepare('UPDATE files SET size = ?, status = ? WHERE id = ?').run(outStat.size, 'ready', fileId);
+      } else {
+        db.prepare('UPDATE files SET status = ? WHERE id = ?').run('ready', fileId);
+      }
+    } catch (err) {
+      db.prepare('UPDATE files SET status = ? WHERE id = ?').run('error', fileId);
+    }
+  });
 
   return NextResponse.json({
-    id: fileId, name: fileName, original_name: file.name, status: 'ready', size: fileSize,
+    id: fileId, name: fileName, original_name: file.name, status: 'processing', size: fileSize,
   }, { status: 201 });
 }

@@ -161,17 +161,20 @@ function ReviewPage() {
 
   const [retryCount, setRetryCount] = useState(0);
 
-  const handleVideoError = () => {
+  const handleVideoError = async () => {
     const video = videoRef.current;
     let msg = 'Video not available';
     if (video?.error) {
       const codes: Record<number, string> = {
-        1: 'Video loading aborted',
-        2: 'Network error - check backend is running on port 4000',
-        3: 'Video format not supported or file is corrupted',
-        4: 'Video not available',
+        1: 'Carga de video abortada',
+        2: 'Error de red al cargar el video',
+        3: 'Formato de video no soportado. Probá subir un video H.264 (.mp4)',
+        4: 'Video no disponible. Probá subir un video H.264 (.mp4)',
       };
-      msg = codes[video.error.code] || 'Failed to load video';
+      msg = codes[video.error.code] || 'Error al cargar el video';
+    }
+    if (!video?.videoWidth && video?.audioTracks?.length) {
+      msg = 'El códec de video no es compatible con este navegador. Usá H.264 (.mp4)';
     }
     setVideoError(msg);
     setVideoReady(false);
@@ -538,7 +541,6 @@ function ReviewPage() {
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
               src={streamUrl}
-              crossOrigin="anonymous"
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onError={handleVideoError}
