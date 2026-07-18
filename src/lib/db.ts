@@ -52,8 +52,8 @@ db.exec(`
     FOREIGN KEY (uploaded_by) REFERENCES users(id)
   );
   CREATE TABLE IF NOT EXISTS comments (
-    id TEXT PRIMARY KEY, file_id TEXT NOT NULL, user_id TEXT NOT NULL,
-    parent_id TEXT, content TEXT NOT NULL, timecode REAL,
+    id TEXT PRIMARY KEY, file_id TEXT NOT NULL, user_id TEXT,
+    visitor_name TEXT, parent_id TEXT, content TEXT NOT NULL, timecode REAL,
     status TEXT DEFAULT 'active', resolved_at TEXT, resolved_by TEXT,
     created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (file_id) REFERENCES files(id), FOREIGN KEY (user_id) REFERENCES users(id),
@@ -72,6 +72,16 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now')), completed_at TEXT,
     FOREIGN KEY (file_id) REFERENCES files(id), FOREIGN KEY (reviewer_id) REFERENCES users(id)
   );
+  CREATE TABLE IF NOT EXISTS shared_links (
+    id TEXT PRIMARY KEY, file_id TEXT NOT NULL, token TEXT UNIQUE NOT NULL,
+    project_id TEXT NOT NULL, created_by TEXT NOT NULL,
+    allow_comments INTEGER DEFAULT 1, allow_annotations INTEGER DEFAULT 1,
+    expires_at TEXT, active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (file_id) REFERENCES files(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id),
+    FOREIGN KEY (created_by) REFERENCES users(id)
+  );
   CREATE TABLE IF NOT EXISTS notifications (
     id TEXT PRIMARY KEY, user_id TEXT NOT NULL, type TEXT NOT NULL,
     message TEXT NOT NULL, data TEXT, read INTEGER DEFAULT 0,
@@ -79,5 +89,12 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 `);
+
+try {
+  db.exec("ALTER TABLE comments ADD COLUMN visitor_name TEXT");
+} catch {}
+try {
+  db.exec("ALTER TABLE shared_links ADD COLUMN allow_annotations INTEGER DEFAULT 1");
+} catch {}
 
 export default db;

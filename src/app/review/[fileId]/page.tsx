@@ -33,6 +33,9 @@ function ReviewPage() {
   const [currentDrawPath, setCurrentDrawPath] = useState<any[]>([]);
   const [onlineReviewers, setOnlineReviewers] = useState<any[]>([]);
   const [remoteCursors, setRemoteCursors] = useState<Record<string, { x: number; y: number }>>({});
+  const [shareUrl, setShareUrl] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'comments' | 'annotations' | 'versions' | 'reviews'>('comments');
   const [videoReady, setVideoReady] = useState(false);
   const [videoError, setVideoError] = useState('');
@@ -477,6 +480,21 @@ function ReviewPage() {
             <span key={r.userId || i} className="text-xs text-frame-400">{r.userEmail || 'User'}</span>
           ))}
           <button
+            onClick={async () => {
+              setShareLoading(true);
+              try {
+                const res = await fetch(`/api/share/create/${params.fileId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' }, body: '{}' });
+                const data = await res.json();
+                setShareUrl(data.url);
+                setShowShareModal(true);
+              } catch {}
+              setShareLoading(false);
+            }}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-frame-800 text-frame-300 hover:text-white"
+          >
+            {shareLoading ? '...' : 'Share'}
+          </button>
+          <button
             onClick={() => setDrawing(!drawing)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${drawing ? 'bg-blue-600 text-white' : 'bg-frame-800 text-frame-300 hover:text-white'}`}
           >
@@ -520,6 +538,7 @@ function ReviewPage() {
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
               src={streamUrl}
+              controls
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onError={handleVideoError}
@@ -810,6 +829,21 @@ function ReviewPage() {
           </div>
         </div>
       </div>
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowShareModal(false)}>
+          <div className="bg-frame-900 rounded-xl p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+            <h3 className="text-white text-sm font-semibold mb-2">Compartir video</h3>
+            <p className="text-frame-400 text-xs mb-4">Cualquier persona con este link puede ver el video y dejar comentarios.</p>
+            <div className="flex gap-2">
+              <input type="text" readOnly value={shareUrl} className="flex-1 px-3 py-2 bg-frame-800 border border-frame-700 rounded-lg text-white text-xs focus:outline-none" onClick={e => (e.target as HTMLInputElement).select()} />
+              <button onClick={() => { navigator.clipboard.writeText(shareUrl); }} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
+                Copiar
+              </button>
+            </div>
+            <button onClick={() => setShowShareModal(false)} className="mt-3 text-xs text-frame-500 hover:text-frame-300">Cerrar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
