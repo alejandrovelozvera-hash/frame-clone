@@ -538,7 +538,7 @@ function ReviewPage() {
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
               src={streamUrl}
-              controls
+              crossOrigin="anonymous"
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onError={handleVideoError}
