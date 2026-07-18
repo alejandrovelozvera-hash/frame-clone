@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
-import db from '@/lib/db';
+import db, { UPLOADS_DIR } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
-
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
 
 export async function GET(request: NextRequest, { params }: { params: { projectId: string; fileId: string } }) {
   const payload = verifyToken(request);
@@ -49,7 +47,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { proje
   for (const v of versions) {
     try { if (v.file_path && fs.existsSync(v.file_path)) fs.unlinkSync(v.file_path); } catch {}
   }
-  const thumbDir = path.join(UPLOADS_DIR, 'thumbnails', path.parse(file.name).name);
+  const thumbDir = path.join(process.cwd(), 'uploads', 'thumbnails', path.parse(file.name).name);
   try { if (fs.existsSync(thumbDir)) fs.rmSync(thumbDir, { recursive: true, force: true }); } catch {}
 
   return NextResponse.json({ message: 'Deleted' });
