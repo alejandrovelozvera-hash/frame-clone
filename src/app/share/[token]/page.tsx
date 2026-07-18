@@ -18,6 +18,7 @@ export default function SharedView() {
   const [comments, setComments] = useState<any[]>([]);
   const [visitorName, setVisitorName] = useState('');
   const [showNameInput, setShowNameInput] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -91,7 +92,17 @@ export default function SharedView() {
     <div className="min-h-screen bg-gray-950 flex flex-col">
       <header className="bg-gray-900 border-b border-gray-800 px-4 py-2 flex items-center justify-between shrink-0">
         <h1 className="text-white font-semibold text-sm truncate">{data.original_name || data.file_name}</h1>
-        <span className="text-xs text-gray-500">{data.project_name}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500 hidden sm:inline">{data.project_name}</span>
+          <button
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            className="sm:hidden p-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -114,7 +125,11 @@ export default function SharedView() {
           </div>
         </div>
 
-        <div className="w-80 bg-gray-900 border-l border-gray-800 flex flex-col shrink-0">
+        {mobileSidebarOpen && (
+          <div className="sm:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileSidebarOpen(false)} />
+        )}
+
+        <div className={`${mobileSidebarOpen ? 'fixed right-0 top-0 bottom-0 w-[85vw] z-50 border-l border-gray-800' : 'hidden sm:flex'} w-80 bg-gray-900 flex-col shrink-0`}>
           <div className="p-3 border-b border-gray-800">
             <h2 className="text-white text-xs font-semibold uppercase tracking-wider mb-2">Comentarios</h2>
             {showNameInput ? (

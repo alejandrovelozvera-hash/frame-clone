@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { projects } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { LoadingSkeleton } from '@/components/loading-skeleton';
+import BottomNav from '@/components/bottom-nav';
 
 function DashboardPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -69,7 +70,7 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-frame-950">
+    <div className="min-h-screen bg-frame-950 pb-20 lg:pb-0">
       <header className="border-b border-frame-800/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -215,7 +216,8 @@ function DashboardPage() {
           </div>
         )}
       </main>
-    </div>
+        <BottomNav />
+      </div>
   );
 }
 

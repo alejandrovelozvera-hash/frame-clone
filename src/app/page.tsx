@@ -79,58 +79,27 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen bg-frame-950 flex flex-col lg:flex-row">
-      <div className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-12 lg:py-0">
-        <div className="max-w-xl">
-          <div className="mb-8">
-            <h1 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
-              Revisa videos en equipo,
-              <span className="text-blue-500"> frame por frame</span>
-            </h1>
-            <p className="text-frame-400 text-lg mt-4 leading-relaxed">
-              La plataforma colaborativa de revisión de video que permite a equipos creativos
-              compartir, comentar y aprobar contenido audiovisual con precisión de frame.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            {features.map((f, i) => (
-              <div key={i} className="bg-frame-900/50 border border-frame-800 rounded-xl p-4 hover:bg-frame-900 transition-colors">
-                <div className="text-blue-500 mb-2">{f.icon}</div>
-                <h3 className="text-white font-semibold text-sm mb-1">{f.title}</h3>
-                <p className="text-frame-500 text-xs leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-6 text-xs text-frame-600">
-            <span className="flex items-center gap-1">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-              Sin instalación
-            </span>
-            <span className="flex items-center gap-1">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-              Colaboración en vivo
-            </span>
-            <span className="flex items-center gap-1">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-              Frame-accurate
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full lg:w-[420px] flex items-center justify-center px-8 py-12 lg:py-0">
-        <div className="w-full bg-frame-900 rounded-2xl p-8 border border-frame-800">
-          <div className="mb-6 text-center">
-            <h2 className="text-xl font-bold text-white">{isLogin ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
-            <p className="text-frame-400 text-sm mt-1">
-              {isLogin ? 'Accede a tus proyectos' : 'Comienza a revisir videos en equipo'}
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Auth card — TOP on mobile, RIGHT on desktop */}
+      <div className="order-first lg:order-last w-full lg:w-[420px] lg:min-h-screen flex items-start lg:items-center justify-center px-4 pt-4 pb-0 lg:px-8 lg:py-0">
+        <div className="w-full bg-frame-900/80 backdrop-blur-xl lg:bg-frame-900 rounded-2xl lg:rounded-2xl p-5 lg:p-8 border border-frame-800/60 lg:border-frame-800 shadow-lg shadow-black/10">
+          <div className="flex items-center justify-between lg:block mb-4 lg:mb-6">
             <div>
-              <label className="block text-sm font-medium text-frame-300 mb-1">Email</label>
+              <h2 className="text-lg lg:text-xl font-bold text-white">{isLogin ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
+              <p className="text-frame-400 text-xs lg:text-sm mt-0.5 lg:mt-1">
+                {isLogin ? 'Accede a tus proyectos' : 'Comienza a revisar videos en equipo'}
+              </p>
+            </div>
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="lg:hidden text-xs text-blue-400 hover:text-blue-300 font-medium whitespace-nowrap ml-3"
+            >
+              {isLogin ? 'Registrarse' : 'Iniciar sesión'}
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
+            <div>
+              <label className="block text-xs lg:text-sm font-medium text-frame-300 mb-1">Email</label>
               <input
                 type="email"
                 value={email}
@@ -143,7 +112,7 @@ function LoginPage() {
 
             {!isLogin && (
               <div>
-                <label className="block text-sm font-medium text-frame-300 mb-1">Nombre</label>
+                <label className="block text-xs lg:text-sm font-medium text-frame-300 mb-1">Nombre</label>
                 <input
                   type="text"
                   value={name}
@@ -156,7 +125,7 @@ function LoginPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-frame-300 mb-1">Contraseña</label>
+              <label className="block text-xs lg:text-sm font-medium text-frame-300 mb-1">Contraseña</label>
               <input
                 type="password"
                 value={password}
@@ -174,19 +143,60 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors disabled:opacity-50"
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors disabled:opacity-50 active:scale-[0.98]"
             >
               {loading ? 'Cargando...' : isLogin ? 'Iniciar sesión' : 'Crear cuenta'}
             </button>
           </form>
 
-          <div className="mt-5 text-center">
+          <div className="mt-4 lg:mt-5 text-center hidden lg:block">
             <button
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-frame-400 hover:text-frame-200 transition-colors"
             >
               {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero section — BELOW auth on mobile, LEFT on desktop */}
+      <div className="order-last lg:order-first flex-1 flex flex-col justify-center px-6 lg:px-16 py-6 lg:py-0">
+        <div className="max-w-xl">
+          <div className="mb-6 lg:mb-8">
+            <h1 className="text-3xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
+              Revisa videos en equipo,
+              <span className="text-blue-500"> frame por frame</span>
+            </h1>
+            <p className="text-frame-400 text-sm lg:text-lg mt-3 lg:mt-4 leading-relaxed">
+              La plataforma colaborativa de revisión de video que permite a equipos creativos
+              compartir, comentar y aprobar contenido audiovisual con precisión de frame.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 mb-6 lg:mb-8">
+            {features.map((f, i) => (
+              <div key={i} className="bg-frame-900/50 border border-frame-800 rounded-xl p-3 lg:p-4 hover:bg-frame-900 transition-colors">
+                <div className="text-blue-500 mb-1.5 lg:mb-2">{f.icon}</div>
+                <h3 className="text-white font-semibold text-xs lg:text-sm mb-1">{f.title}</h3>
+                <p className="text-frame-500 text-[11px] lg:text-xs leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4 lg:gap-6 text-[11px] lg:text-xs text-frame-600">
+            <span className="flex items-center gap-1">
+              <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+              Sin instalación
+            </span>
+            <span className="flex items-center gap-1">
+              <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+              Colaboración en vivo
+            </span>
+            <span className="flex items-center gap-1">
+              <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+              Frame-accurate
+            </span>
           </div>
         </div>
       </div>

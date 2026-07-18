@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/toast';
 import { LoadingSkeleton } from '@/components/loading-skeleton';
+import BottomNav from '@/components/bottom-nav';
 import { projects, files } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 
@@ -348,9 +349,10 @@ function ProjectPage() {
           </div>
         )}
       </main>
-    </div>
-  );
-}
+        <BottomNav />
+      </div>
+    );
+  }
 
 export default function Project() {
   return (
