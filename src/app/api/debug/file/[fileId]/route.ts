@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, { params }: { params: { fileId: 
 
   const version = db.prepare('SELECT * FROM versions WHERE file_id = ? ORDER BY version_number DESC LIMIT 1').get(params.fileId) as any;
 
-  const debug = {
+  const debug: Record<string, any> = {
     file,
     version: version ? { id: version.id, path: version.file_path, exists: fs.existsSync(version.file_path) } : null,
     paths: {
@@ -25,14 +25,13 @@ export async function GET(request: NextRequest, { params }: { params: { fileId: 
 
   if (version && fs.existsSync(version.file_path)) {
     const stat = fs.statSync(version.file_path);
-    debug['fileStats'] = {
+    debug.fileStats = {
       size: stat.size,
       mode: stat.mode,
       birthtime: stat.birthtime,
     };
-    const ext = path.extname(file.name || '').toLowerCase();
-    debug['extension'] = ext;
-    debug['mimeType'] = file.mime_type;
+    debug.extension = path.extname(file.name || '').toLowerCase();
+    debug.mimeType = file.mime_type;
   }
 
   return NextResponse.json(debug);
