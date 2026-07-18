@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { projects } from '@/lib/api';
+import { useToast } from '@/components/toast';
 
 function DashboardPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -13,6 +14,7 @@ function DashboardPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -44,18 +46,20 @@ function DashboardPage() {
       setShowCreate(false);
       setNewName('');
       setNewDesc('');
+      toast('Proyecto creado', 'success');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this project?')) return;
+    if (!confirm('¿Eliminar este proyecto?')) return;
     try {
       await projects.delete(id);
       setProjectList(projectList.filter(p => p.id !== id));
+      toast('Proyecto eliminado', 'success');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
     }
   };
 

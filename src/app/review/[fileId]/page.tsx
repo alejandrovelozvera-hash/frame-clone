@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { files, comments, annotations as annotationsApi } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
+import { useToast } from '@/components/toast';
 
 function ReviewPage() {
   const { user, loading: authLoading } = useAuth();
@@ -12,6 +13,7 @@ function ReviewPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
+  const { toast } = useToast();
 
   const [file, setFile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,7 @@ function ReviewPage() {
         setTimeout(loadFile, 3000);
       }
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
       router.push('/dashboard');
     } finally {
       setLoading(false);
@@ -398,8 +400,9 @@ function ReviewPage() {
       setCommentList((prev: any[]) => [...prev, comment]);
       socketRef.current?.emit('comment:added', { fileId: params.fileId, comment });
       setNewComment('');
+      toast('Comentario agregado', 'success');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
     }
   };
 
@@ -412,8 +415,9 @@ function ReviewPage() {
         )
       );
       socketRef.current?.emit('comment:resolved', { fileId: params.fileId, commentId });
+      toast('Comentario resuelto', 'success');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
     }
   };
 
@@ -422,8 +426,9 @@ function ReviewPage() {
       await annotationsApi.delete(annotationId);
       setAnnotationsList((prev: any[]) => prev.filter((a: any) => a.id !== annotationId));
       socketRef.current?.emit('annotation:removed', { fileId: params.fileId, annotationId });
+      toast('Anotación eliminada', 'success');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
     }
   };
 
@@ -444,8 +449,9 @@ function ReviewPage() {
 
       if (!res.ok) throw new Error('Upload failed');
       loadFile();
+      toast('Nueva versión subida — se está procesando', 'success');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
     }
   };
 
@@ -492,7 +498,10 @@ function ReviewPage() {
                 const data = await res.json();
                 setShareUrl(data.url);
                 setShowShareModal(true);
-              } catch {}
+                toast('Link de uso compartido creado', 'success');
+              } catch {
+                toast('Error al crear link de uso compartido', 'error');
+              }
               setShareLoading(false);
             }}
             className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-frame-800 text-frame-300 hover:text-white"
@@ -928,7 +937,7 @@ function ReviewPage() {
             <p className="text-frame-400 text-xs mb-4">Cualquier persona con este link puede ver el video y dejar comentarios.</p>
             <div className="flex gap-2">
               <input type="text" readOnly value={shareUrl} className="flex-1 px-3 py-2 bg-frame-800 border border-frame-700 rounded-lg text-white text-xs focus:outline-none" onClick={e => (e.target as HTMLInputElement).select()} />
-              <button onClick={() => { navigator.clipboard.writeText(shareUrl); }} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
+              <button onClick={() => { navigator.clipboard.writeText(shareUrl); toast('Link copiado al portapapeles', 'success'); }} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
                 Copiar
               </button>
             </div>

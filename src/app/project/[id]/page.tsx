@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
+import { useToast } from '@/components/toast';
 import { projects, files } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 
@@ -10,6 +11,7 @@ function ProjectPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const params = useParams();
+  const { toast } = useToast();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -72,7 +74,7 @@ function ProjectPage() {
       const data = await projects.get(params.id as string);
       setProject(data);
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
       router.push('/dashboard');
     } finally {
       setLoading(false);
@@ -121,8 +123,10 @@ function ProjectPage() {
       });
 
       loadProject();
+      toast('Archivo subido — procesando...', 'success');
     } catch (err: any) {
       setUploadError(err.message);
+      toast(err.message, 'error');
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -131,13 +135,14 @@ function ProjectPage() {
   };
 
   const handleDeleteFile = async (fileId: string) => {
-    if (!confirm('Delete this file and all its versions?')) return;
+    if (!confirm('¿Eliminar este archivo y todas sus versiones?')) return;
     try {
       await files.delete(params.id as string, fileId);
       setMenuFileId(null);
       loadProject();
+      toast('Archivo eliminado', 'success');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message, 'error');
     }
   };
 

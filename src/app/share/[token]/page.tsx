@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
+import { useToast } from '@/components/toast';
 
 export default function SharedView() {
   const params = useParams();
+  const { toast } = useToast();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -67,7 +69,10 @@ export default function SharedView() {
       const comment = await res.json();
       setComments((prev: any[]) => [...prev, comment]);
       setCommentText('');
-    } catch {}
+      toast('Comentario enviado', 'success');
+    } catch {
+      toast('Error al enviar comentario', 'error');
+    }
   };
 
   if (loading) return (
