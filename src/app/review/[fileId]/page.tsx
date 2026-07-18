@@ -457,7 +457,6 @@ function ReviewPage() {
 
   if (!file) return null;
 
-  const videoUrl = file.name ? `/uploads/videos/${file.name}` : '';
   const streamUrl = `/api/files/stream/${params.fileId}`;
 
   return (
@@ -520,7 +519,7 @@ function ReviewPage() {
             <video
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
-              src={videoUrl}
+              src={streamUrl}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onError={handleVideoError}
