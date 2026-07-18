@@ -174,7 +174,8 @@ function ReviewPage() {
       };
       msg = codes[video.error.code] || 'Error al cargar el video';
     }
-    if (!video?.videoWidth && video?.audioTracks?.length) {
+    const anyVideo = video as any;
+    if (!anyVideo?.videoWidth && anyVideo?.audioTracks?.length) {
       msg = 'El códec de video no es compatible con este navegador. Usá H.264 (.mp4)';
     }
     setVideoError(msg);
