@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { useToast } from '@/components/toast';
 import { LoadingSkeleton } from '@/components/loading-skeleton';
+import { ErrorBoundary } from '@/components/error-boundary';
 import BottomNav from '@/components/bottom-nav';
 import { projects, files } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
@@ -207,15 +208,15 @@ function ProjectPage() {
     }
   };
 
-  const filteredFiles = project.files?.filter((f: any) =>
-    !fileSearch || f.original_name.toLowerCase().includes(fileSearch.toLowerCase())
-  ) || [];
-
   if (authLoading || loading) {
     return <LoadingSkeleton type="cards" />;
   }
 
   if (!project) return null;
+
+  const filteredFiles = project.files?.filter((f: any) =>
+    !fileSearch || f.original_name.toLowerCase().includes(fileSearch.toLowerCase())
+  ) || [];
 
   return (
     <>
@@ -506,7 +507,9 @@ function ProjectPage() {
 export default function Project() {
   return (
     <AuthProvider>
-      <ProjectPage />
+      <ErrorBoundary>
+        <ProjectPage />
+      </ErrorBoundary>
     </AuthProvider>
   );
 }
