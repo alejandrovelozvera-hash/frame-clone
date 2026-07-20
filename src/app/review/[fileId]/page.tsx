@@ -49,6 +49,7 @@ function ReviewPage() {
   const [fileProcessing, setFileProcessing] = useState(false);
   const [fitMode, setFitMode] = useState<'contain' | 'cover' | 'fill'>('contain');
   const [videoSrc, setVideoSrc] = useState('');
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -538,6 +539,53 @@ function ReviewPage() {
     }
   };
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
+  const closeContextMenu = () => setContextMenu(null);
+
+  useEffect(() => {
+    if (contextMenu) {
+      const close = () => closeContextMenu();
+      window.addEventListener('click', close);
+      return () => window.removeEventListener('click', close);
+    }
+  }, [contextMenu]);
+
+  const handleCopyTimestamp = () => {
+    const m = Math.floor(currentTime / 60);
+    const s = Math.floor(currentTime % 60);
+    const ms = Math.floor((currentTime % 1) * 100);
+    navigator.clipboard.writeText(`${m}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`);
+    toast('Timestamp copiado', 'success');
+    closeContextMenu();
+  };
+
+  const handleCommentAtTime = () => {
+    setSidebarTab('reviews');
+    closeContextMenu();
+  };
+
+  const handleExportCSV = () => {
+    const rows = [['Autor', 'Comentario', 'Timestamp', 'Estado', 'Fecha'].join(',')];
+    commentList.forEach((c: any) => {
+      const time = c.timecode !== null ? `${Math.floor(c.timecode / 60)}:${Math.floor(c.timecode % 60).toString().padStart(2, '0')}` : '--';
+      const content = `"${(c.content || '').replace(/"/g, '""')}"`;
+      rows.push([c.user_name || 'Usuario', content, time, c.status === 'resolved' ? 'Resuelto' : 'Activo', c.created_at].join(','));
+    });
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `comentarios-${file?.original_name || 'review'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('CSV exportado', 'success');
+    closeContextMenu();
+  };
+
   const handleNewVersionUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const videoFile = e.target.files?.[0];
     if (!videoFile) return;
@@ -931,6 +979,7 @@ function ReviewPage() {
               onPlay={() => setPlaying(true)}
               onPause={() => setPlaying(false)}
               onClick={togglePlay}
+              onContextMenu={handleContextMenu}
               preload="auto"
               playsInline
             />
@@ -965,6 +1014,26 @@ function ReviewPage() {
                 <div className="w-3 h-3 bg-yellow-400 rounded-full opacity-70" />
               </div>
             ))}
+
+            {contextMenu && (
+              <div
+                className="fixed z-50 bg-frame-800 border border-frame-700/50 rounded-xl shadow-2xl shadow-black/30 py-1 w-44 backdrop-blur-xl"
+                style={{ left: contextMenu.x, top: contextMenu.y }}
+              >
+                <button onClick={handleCopyTimestamp} className="w-full px-3 py-2 text-left text-xs text-frame-200 hover:bg-frame-700/50 flex items-center gap-2 transition-colors">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" /></svg>
+                  Copiar timestamp
+                </button>
+                <button onClick={handleCommentAtTime} className="w-full px-3 py-2 text-left text-xs text-frame-200 hover:bg-frame-700/50 flex items-center gap-2 transition-colors">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  Comentar aquí
+                </button>
+                <button onClick={handleExportCSV} className="w-full px-3 py-2 text-left text-xs text-frame-200 hover:bg-frame-700/50 flex items-center gap-2 transition-colors">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                  Exportar comentarios (CSV)
+                </button>
+              </div>
+            )}
 
             {!playing && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

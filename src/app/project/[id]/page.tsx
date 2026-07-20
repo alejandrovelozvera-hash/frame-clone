@@ -21,6 +21,11 @@ function ProjectPage() {
   const [uploadError, setUploadError] = useState('');
   const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
   const [menuFileId, setMenuFileId] = useState<string | null>(null);
+  const [fileSearch, setFileSearch] = useState('');
+  const [showMembers, setShowMembers] = useState(false);
+  const [members, setMembers] = useState<any[]>([]);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +74,12 @@ function ProjectPage() {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleOpenUpload = () => fileInputRef.current?.click();
+    window.addEventListener('open-upload', handleOpenUpload);
+    return () => window.removeEventListener('open-upload', handleOpenUpload);
   }, []);
 
   const loadProject = async () => {
@@ -148,6 +159,58 @@ function ProjectPage() {
     }
   };
 
+  const loadMembers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/projects/${params.id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      setMembers(data.members || []);
+    } catch {}
+  };
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteEmail.trim()) return;
+    setInviteLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/projects/${params.id}/members/${inviteEmail}`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : {},
+        body: JSON.stringify({ email: inviteEmail }),
+      });
+      if (!res.ok) throw new Error((await res.json()).message || 'Error al invitar');
+      toast('Miembro agregado', 'success');
+      setInviteEmail('');
+      loadMembers();
+    } catch (err: any) {
+      toast(err.message, 'error');
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (userId: string) => {
+    if (!confirm('¿Remover este miembro?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`/api/projects/${params.id}/members/${userId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      toast('Miembro removido', 'success');
+      loadMembers();
+    } catch (err: any) {
+      toast(err.message, 'error');
+    }
+  };
+
+  const filteredFiles = project.files?.filter((f: any) =>
+    !fileSearch || f.original_name.toLowerCase().includes(fileSearch.toLowerCase())
+  ) || [];
+
   if (authLoading || loading) {
     return <LoadingSkeleton type="cards" />;
   }
@@ -155,6 +218,7 @@ function ProjectPage() {
   if (!project) return null;
 
   return (
+    <>
     <div className="min-h-screen bg-frame-950">
       <header className="border-b border-frame-800/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -176,6 +240,17 @@ function ProjectPage() {
                 <span className="text-[10px] text-green-400 font-medium">{onlineUsers.length} online</span>
               </div>
             )}
+            {project.members && (
+              <button
+                onClick={() => { loadMembers(); setShowMembers(true); }}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-frame-800/60 text-frame-400 hover:text-frame-200 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                </svg>
+                Miembros
+              </button>
+            )}
             <span className="text-sm text-frame-400">{user?.name}</span>
           </div>
         </div>
@@ -185,9 +260,28 @@ function ProjectPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-lg font-semibold text-white">Archivos</h2>
-            <p className="text-sm text-frame-500 mt-0.5">{project.files?.length || 0} video{(project.files?.length || 0) !== 1 ? 's' : ''}</p>
+            <p className="text-sm text-frame-500 mt-0.5">{filteredFiles.length} video{filteredFiles.length !== 1 ? 's' : ''}</p>
           </div>
           <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-frame-800/40 border border-frame-700/30 rounded-lg">
+              <svg className="w-3.5 h-3.5 text-frame-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                value={fileSearch}
+                onChange={e => setFileSearch(e.target.value)}
+                placeholder="Buscar archivos..."
+                className="w-36 bg-transparent text-xs text-white/70 placeholder-frame-500 focus:outline-none"
+              />
+              {fileSearch && (
+                <button onClick={() => setFileSearch('')} className="text-frame-500 hover:text-white">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
             {uploading && (
               <div className="flex items-center gap-2 px-3 py-1.5 bg-frame-800/50 rounded-lg">
                 <div className="w-24 h-1.5 bg-frame-700 rounded-full overflow-hidden">
@@ -228,25 +322,24 @@ function ProjectPage() {
           </div>
         )}
 
-        {project.files?.length === 0 ? (
+        {filteredFiles.length === 0 ? (
           <div className="text-center py-24 flex flex-col items-center">
             <div className="w-16 h-16 rounded-2xl bg-frame-900/80 border border-frame-800/50 flex items-center justify-center mb-5">
               <svg className="w-7 h-7 text-frame-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
               </svg>
             </div>
-            <p className="text-frame-300 text-lg font-medium mb-1">Sin archivos</p>
-            <p className="text-frame-500 text-sm mb-6">Sube un video para empezar a revisar</p>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.97]"
-            >
-              Subir video
-            </button>
+            <p className="text-frame-300 text-lg font-medium mb-1">{fileSearch ? 'Sin resultados' : 'Sin archivos'}</p>
+            <p className="text-frame-500 text-sm mb-6">{fileSearch ? 'Probá con otro término de búsqueda' : 'Sube un video para empezar a revisar'}</p>
+            {!fileSearch && (
+              <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.97]">
+                Subir video
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {project.files?.map((file: any) => (
+            {filteredFiles.map((file: any) => (
               <div
                 key={file.id}
                 className="group cursor-pointer"
@@ -351,8 +444,64 @@ function ProjectPage() {
       </main>
         <BottomNav />
       </div>
-    );
-  }
+
+      {showMembers && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowMembers(false)}>
+          <div className="bg-frame-900 rounded-2xl p-5 w-full max-w-sm border border-frame-700/50 shadow-2xl shadow-black/20" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-white">Miembros</h3>
+              <button onClick={() => setShowMembers(false)} className="p-1 text-frame-500 hover:text-white">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleInvite} className="flex gap-2 mb-4">
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={e => setInviteEmail(e.target.value)}
+                placeholder="Email del miembro..."
+                className="flex-1 px-3 py-2 bg-frame-800 border border-frame-700 rounded-lg text-xs text-white placeholder-frame-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                required
+              />
+              <button
+                type="submit"
+                disabled={inviteLoading || !inviteEmail.trim()}
+                className="px-3 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-frame-700 disabled:text-frame-500 text-white rounded-lg text-xs font-medium transition-all active:scale-95"
+              >
+                {inviteLoading ? '...' : 'Invitar'}
+              </button>
+            </form>
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {members.length === 0 && <p className="text-xs text-frame-500 text-center py-4">Sin miembros</p>}
+              {members.map((m: any) => (
+                <div key={m.id || m.userId} className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-white/5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+                      <span className="text-[9px] text-white/70 font-medium">{(m.name || m.email || 'U')[0].toUpperCase()}</span>
+                    </div>
+                    <span className="text-xs text-white/70">{m.name || m.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-frame-500 capitalize">{m.role || 'viewer'}</span>
+                    {m.role !== 'owner' && (
+                      <button onClick={() => handleRemoveMember(m.userId || m.id)} className="p-1 text-frame-600 hover:text-red-400 transition-colors">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function Project() {
   return (

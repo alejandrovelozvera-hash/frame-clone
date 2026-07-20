@@ -16,6 +16,10 @@ function DashboardPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,6 +42,11 @@ function DashboardPage() {
       setLoading(false);
     }
   };
+
+  const filteredProjects = projectList.filter(p =>
+    !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +74,42 @@ function DashboardPage() {
     }
   };
 
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/notifications', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) setNotifications(await res.json());
+      } catch {}
+    };
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('darkMode');
+    if (stored !== null) setDarkMode(stored === 'true');
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', String(darkMode));
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
+  const unreadCount = notifications.filter((n: any) => !n.read).length;
+
+  const handleMarkRead = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`/api/notifications/${id}/read`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      setNotifications((prev: any[]) => prev.map((n: any) => n.id === id ? { ...n, read: 1 } : n));
+    } catch {}
+  };
+
   if (authLoading || loading) {
     return <LoadingSkeleton />;
   }
@@ -82,7 +127,67 @@ function DashboardPage() {
             <h1 className="text-lg font-bold text-white">FrameClone</h1>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-1.5 text-frame-400 hover:text-white transition-colors"
+              title="Modo oscuro/claro"
+            >
+              {darkMode ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+              )}
+            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-1.5 text-frame-400 hover:text-white transition-colors relative"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] font-bold text-white flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <div className="absolute right-0 top-8 w-72 bg-frame-800 border border-frame-700/50 rounded-xl shadow-2xl shadow-black/30 py-1 z-50 backdrop-blur-xl">
+                  <div className="px-3 py-2 border-b border-white/[0.06]">
+                    <p className="text-[11px] font-medium text-white/70">Notificaciones</p>
+                  </div>
+                  {notifications.length === 0 ? (
+                    <p className="text-xs text-frame-500 text-center py-4">Sin notificaciones</p>
+                  ) : (
+                    <div className="max-h-60 overflow-y-auto">
+                      {notifications.slice(0, 10).map((n: any) => (
+                        <div
+                          key={n.id}
+                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${n.read ? 'text-frame-400 hover:bg-white/5' : 'text-white bg-white/[0.03] hover:bg-white/[0.06]'}`}
+                          onClick={() => handleMarkRead(n.id)}
+                        >
+                          <p className={n.read ? '' : 'font-medium'}>{n.message}</p>
+                          <p className="text-[10px] text-frame-600 mt-0.5">{new Date(n.created_at).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             <span className="text-sm text-frame-400">{user?.name}</span>
+            <button
+              onClick={() => router.push('/profile')}
+              className="text-sm text-frame-400 hover:text-white transition-colors"
+              title="Perfil"
+            >
+              Perfil
+            </button>
             <button
               onClick={logout}
               className="text-sm text-frame-400 hover:text-white transition-colors"
@@ -97,9 +202,28 @@ function DashboardPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-xl font-semibold text-white">Proyectos</h2>
-            <p className="text-sm text-frame-500 mt-1">{projectList.length} proyecto{projectList.length !== 1 ? 's' : ''}</p>
+            <p className="text-sm text-frame-500 mt-1">{filteredProjects.length} proyecto{filteredProjects.length !== 1 ? 's' : ''}</p>
           </div>
           <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-frame-800/40 border border-frame-700/30 rounded-lg">
+              <svg className="w-3.5 h-3.5 text-frame-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Buscar proyectos..."
+                className="w-40 bg-transparent text-xs text-white/70 placeholder-frame-500 focus:outline-none"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="text-frame-500 hover:text-white">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <button
               onClick={async () => {
                 try {
@@ -192,25 +316,24 @@ function DashboardPage() {
           </div>
         )}
 
-        {projectList.length === 0 ? (
+        {filteredProjects.length === 0 ? (
           <div className="text-center py-24 flex flex-col items-center">
             <div className="w-16 h-16 rounded-2xl bg-frame-900/80 border border-frame-800/50 flex items-center justify-center mb-5">
               <svg className="w-7 h-7 text-frame-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
               </svg>
             </div>
-            <p className="text-frame-300 text-lg font-medium mb-1">Sin proyectos</p>
-            <p className="text-frame-500 text-sm mb-6">Crea tu primer proyecto para empezar a revisar videos</p>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.97]"
-            >
-              Nuevo proyecto
-            </button>
+            <p className="text-frame-300 text-lg font-medium mb-1">{searchQuery ? 'Sin resultados' : 'Sin proyectos'}</p>
+            <p className="text-frame-500 text-sm mb-6">{searchQuery ? 'Probá con otro término de búsqueda' : 'Crea tu primer proyecto para empezar a revisar videos'}</p>
+            {!searchQuery && (
+              <button onClick={() => setShowCreate(true)} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.97]">
+                Nuevo proyecto
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {projectList.map((project: any) => (
+            {filteredProjects.map((project: any) => (
               <div
                 key={project.id}
                 className="group cursor-pointer"
