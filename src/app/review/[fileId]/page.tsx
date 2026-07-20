@@ -29,7 +29,6 @@ function ReviewPage() {
 
   const [commentList, setCommentList] = useState<any[]>([]);
   const [annotationsList, setAnnotationsList] = useState<any[]>([]);
-  const [showComments, setShowComments] = useState(true);
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [newComment, setNewComment] = useState('');
   const [drawing, setDrawing] = useState(false);
@@ -41,7 +40,6 @@ function ReviewPage() {
   const [shareUrl, setShareUrl] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'comments' | 'annotations' | 'versions' | 'reviews'>('comments');
   const [videoReady, setVideoReady] = useState(false);
   const [videoError, setVideoError] = useState('');
@@ -922,35 +920,7 @@ function ReviewPage() {
         shareLoading={shareLoading}
         userName={user?.name}
       />
-      <div className="md:hidden flex items-center gap-1.5 px-2 py-1.5 bg-frame-900/50 border-b border-white/[0.06] review-header-tools">
-        <button
-          onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all whitespace-nowrap bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
-        >
-          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-          Panel
-        </button>
-        <button
-          onClick={() => setShowComments(!showComments)}
-          className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all whitespace-nowrap bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
-        >
-          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-          Comments
-        </button>
-        <button
-          onClick={() => setDrawing(!drawing)}
-          className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all whitespace-nowrap active:scale-90 ${
-            drawing ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
-          }`}
-        >
-          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
-          Annotate
-        </button>
-      </div>
+
 
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 flex flex-col bg-black relative review-container" ref={containerRef}>
@@ -1162,13 +1132,9 @@ function ReviewPage() {
             </div>
           </div>
 
-          {/* Mobile bottom panel — appears below controls instead of overlay */}
-          <div className={`md:hidden border-t border-white/[0.06] bg-frame-950 overflow-hidden transition-all duration-300 ${
-            mobileSidebarOpen ? 'max-h-[50vh]' : 'max-h-0'
-          }`}>
-            <div className="overflow-y-auto h-full">
-              {renderSidebarContent()}
-            </div>
+          {/* Mobile bottom panel — always visible below controls */}
+          <div className="md:hidden border-t border-white/[0.06] bg-frame-950 flex-shrink-0 max-h-[45vh] overflow-y-auto">
+            {renderSidebarContent()}
           </div>
         </div>
 
