@@ -123,46 +123,105 @@ export default function SharedView() {
               controls
             />
           </div>
+
+          {/* Mobile bottom panel — below video */}
+          <div className={`sm:hidden border-t border-white/[0.06] bg-gray-950 overflow-hidden transition-all duration-300 ${
+            mobileSidebarOpen ? 'max-h-[45vh]' : 'max-h-0'
+          }`}>
+            <div className="overflow-y-auto h-full p-3">
+              <div className="flex gap-2 mb-3">
+                {showNameInput ? (
+                  <>
+                    <input
+                      type="text"
+                      value={visitorName}
+                      onChange={e => setVisitorName(e.target.value)}
+                      placeholder="Tu nombre"
+                      className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                    />
+                    <button
+                      onClick={() => { localStorage.setItem('share_visitor_name', visitorName); setShowNameInput(false); }}
+                      className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90"
+                    >
+                      OK
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={commentText}
+                      onChange={e => setCommentText(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+                      placeholder={`Comentar en ${formatTime(currentTime)}...`}
+                      className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                    />
+                    <button onClick={handleAddComment} className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90">Enviar</button>
+                  </>
+                )}
+              </div>
+              <p className="text-[11px] text-white/30 mb-2">Comentando como <span className="text-white/60 font-medium">{visitorName}</span></p>
+              <div className="space-y-2 max-h-[30vh] overflow-y-auto scrollbar-thin">
+                {comments.map((c: any) => (
+                  <div key={c.id} className="p-3 bg-white/[0.03] border border-white/[0.04] rounded-xl">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-white/50 font-medium">{c.visitor_name || c.user_name || 'Anónimo'}</span>
+                      {c.timecode !== null && (
+                        <button
+                          onClick={() => { if (videoRef.current) videoRef.current.currentTime = c.timecode; }}
+                          className="text-xs text-blue-400/70 hover:text-blue-300 font-mono transition-colors"
+                        >
+                          {formatTime(c.timecode)}
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-white/80">{c.content}</p>
+                  </div>
+                ))}
+                {comments.length === 0 && (
+                  <p className="text-xs text-white/20 text-center py-4">Sin comentarios aún</p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {mobileSidebarOpen && (
-          <div className="sm:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setMobileSidebarOpen(false)} />
-        )}
-
-        <div className={`${mobileSidebarOpen ? 'fixed right-0 top-0 bottom-0 w-[85vw] z-50 border-l border-white/[0.06]' : 'hidden sm:flex'} w-80 bg-gray-900/80 backdrop-blur-2xl flex-col shrink-0`}>
+        {/* Desktop sidebar — hidden on mobile */}
+        <div className="hidden sm:flex w-80 bg-gray-900/80 backdrop-blur-2xl border-l border-white/[0.06] flex-col shrink-0">
           <div className="p-3 border-b border-white/[0.04]">
             <h2 className="text-white text-[11px] font-semibold uppercase tracking-[0.08em] mb-2">Comentarios</h2>
-            {showNameInput ? (
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={visitorName}
-                  onChange={e => setVisitorName(e.target.value)}
-                  placeholder="Tu nombre"
-                  className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
-                />
-                <button
-                  onClick={() => { localStorage.setItem('share_visitor_name', visitorName); setShowNameInput(false); }}
-                  className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90"
-                >
-                  OK
-                </button>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={commentText}
-                  onChange={e => setCommentText(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleAddComment()}
-                  placeholder={`Comentar en ${formatTime(currentTime)}...`}
-                  className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
-                />
-                <button onClick={handleAddComment} className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90">Enviar</button>
-              </div>
-            )}
+            <div className="flex gap-2">
+              {showNameInput ? (
+                <>
+                  <input
+                    type="text"
+                    value={visitorName}
+                    onChange={e => setVisitorName(e.target.value)}
+                    placeholder="Tu nombre"
+                    className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                  />
+                  <button
+                    onClick={() => { localStorage.setItem('share_visitor_name', visitorName); setShowNameInput(false); }}
+                    className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90"
+                  >
+                    OK
+                  </button>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={commentText}
+                    onChange={e => setCommentText(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+                    placeholder={`Comentar en ${formatTime(currentTime)}...`}
+                    className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                  />
+                  <button onClick={handleAddComment} className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90">Enviar</button>
+                </>
+              )}
+            </div>
           </div>
-
           <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin">
             <p className="text-[11px] text-white/30 mb-2">Comentando como <span className="text-white/60 font-medium">{visitorName}</span></p>
             {comments.map((c: any) => (
