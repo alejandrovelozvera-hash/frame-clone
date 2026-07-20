@@ -7,6 +7,8 @@ import { files, comments, annotations as annotationsApi } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 import { useToast } from '@/components/toast';
 import { LoadingSkeleton } from '@/components/loading-skeleton';
+import CommentsPanel from '@/components/comments-panel';
+import ReviewHeader from '@/components/review-header';
 
 function ReviewPage() {
   const { user, loading: authLoading } = useAuth();
@@ -430,6 +432,51 @@ function ReviewPage() {
     }
   };
 
+  const handleAddReply = async (commentId: string, content: string) => {
+    try {
+      const reply = await comments.create(params.fileId as string, {
+        content,
+        parent_id: commentId,
+        timecode: currentTime,
+      });
+      setCommentList((prev: any[]) =>
+        prev.map((c: any) =>
+          c.id === commentId
+            ? { ...c, replies: [...(c.replies || []), reply] }
+            : c
+        )
+      );
+      socketRef.current?.emit('comment:added', { fileId: params.fileId, comment: reply });
+      toast('Respuesta agregada', 'success');
+    } catch (err: any) {
+      toast(err.message, 'error');
+    }
+  };
+
+  const handleReactToComment = async (commentId: string, emoji: string, isReply?: boolean, replyId?: string) => {
+    try {
+      const result = await fetch(`/api/comments/${commentId}/react`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ emoji, isReply, replyId }),
+      });
+      if (!result.ok) throw new Error('Failed to react');
+      const updated = await result.json();
+      setCommentList((prev: any[]) =>
+        prev.map((c: any) => (c.id === commentId ? updated : c))
+      );
+    } catch (err: any) {
+      console.error('React error:', err);
+    }
+  };
+
+  const handleSeekTo = (seconds: number) => {
+    handleSeek(seconds);
+  };
+
   const handleDeleteAnnotation = async (annotationId: string) => {
     try {
       await annotationsApi.delete(annotationId);
@@ -689,45 +736,37 @@ function ReviewPage() {
         )}
 
         {sidebarTab === 'reviews' && (
-          <div className="p-3">
-            <div className="glass-panel rounded-xl p-3 mb-3">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-frame-300 font-medium">Pendientes</p>
-                <span className="text-[10px] text-frame-500">{commentList.filter(c => c.status === 'active').length} items</span>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              {commentList
-                .filter((c: any) => c.status === 'active')
-                .map((c: any) => (
-                  <div key={c.id} className="card-subtle rounded-xl p-3">
-                    <p className="text-xs text-white/90 line-clamp-2 mb-2">{c.content}</p>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleResolveComment(c.id)}
-                        className="flex-1 px-2.5 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1"
-                      >
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        Aprobar
-                      </button>
-                      <button className="flex-1 px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-[10px] font-medium transition-all flex items-center justify-center gap-1">
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                        Cambios
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              {commentList.filter(c => c.status === 'active').length === 0 && (
-                <div className="text-center py-12">
-                  <svg className="w-8 h-8 mx-auto text-frame-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-frame-500 text-xs">Todo resuelto</p>
-                  <p className="text-frame-600 text-[10px] mt-1">No hay comentarios pendientes</p>
-                </div>
-              )}
-            </div>
-          </div>
+          <CommentsPanel
+            comments={commentList.map((c: any) => ({
+              id: c.id,
+              content: c.content,
+              author: c.user_name || 'Usuario',
+              created_at: c.created_at,
+              resolved: c.status === 'resolved',
+              reactions: c.reactions || [],
+              replies: (c.replies || []).map((r: any) => ({
+                id: r.id,
+                content: r.content,
+                author: r.user_name || 'Usuario',
+                created_at: r.created_at,
+                reactions: r.reactions || [],
+              })),
+              timeline_seconds: c.timecode,
+            }))}
+            onResolve={handleResolveComment}
+            onAddComment={(content) => {
+              const fakeEvent = { target: { value: content } } as any;
+              const originalValue = newComment;
+              setNewComment(content);
+              setTimeout(() => {
+                handleAddComment();
+              }, 0);
+            }}
+            onAddReply={handleAddReply}
+            onReact={handleReactToComment}
+            onSeekTo={handleSeekTo}
+            currentUser={user?.name || 'You'}
+          />
         )}
       </div>
     </>
@@ -741,64 +780,69 @@ function ReviewPage() {
 
   return (
     <div className="h-screen bg-frame-950 flex flex-col overflow-hidden">
-      <header className="review-header bg-frame-900/70 backdrop-blur-2xl border-b border-white/[0.06] px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.push(`/project/${projectId}`)} className="text-frame-400 hover:text-white transition-all active:scale-90 p-1 -ml-1">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h1 className="text-white font-semibold text-sm truncate max-w-md">{file.original_name}</h1>
-          <span className="text-xs text-white/40">{formatTime(duration)}</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex items-center gap-2">
-            {onlineReviewers.map((r: any, i: number) => (
-              <div key={r.userId || i} className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/10 flex items-center justify-center">
-                <span className="text-[10px] text-white/70 font-medium">{(r.userEmail || 'U')[0].toUpperCase()}</span>
-              </div>
-            ))}
-            <button
-              onClick={async () => {
-                setShareLoading(true);
-                try {
-                  const res = await fetch(`/api/share/create/${params.fileId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' }, body: '{}' });
-                  const data = await res.json();
-                  setShareUrl(data.url);
-                  setShowShareModal(true);
-                  toast('Link de uso compartido creado', 'success');
-                } catch {
-                  toast('Error al crear link de uso compartido', 'error');
-                }
-                setShareLoading(false);
-              }}
-              className="px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
-            >
-              {shareLoading ? '...' : 'Share'}
-            </button>
-            <button
-              onClick={() => setDrawing(!drawing)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all active:scale-90 ${drawing ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'}`}
-            >
-              Annotate
-            </button>
-            <span className="text-xs text-white/30">{user?.name}</span>
-          </div>
-          <button
-            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-all active:scale-90"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-          </button>
-          <button
-            onClick={() => setShowComments(!showComments)}
-            className="md:hidden px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
-          >
-            Comments
-          </button>
-        </div>
-      </header>
+      <ReviewHeader
+        projectName={file.project_name}
+        projectId={projectId || undefined}
+        fileName={file.original_name}
+        duration={duration}
+        resolution={file.resolution}
+        fps={file.fps}
+        reviewers={onlineReviewers}
+        drawing={drawing}
+        onToggleDrawing={() => setDrawing(!drawing)}
+        onBack={() => router.push(`/project/${projectId}`)}
+        onShare={async () => {
+          setShareLoading(true);
+          try {
+            const res = await fetch(`/api/share/create/${params.fileId}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+              },
+              body: '{}',
+            });
+            const data = await res.json();
+            setShareUrl(data.url);
+            setShowShareModal(true);
+            toast('Link de uso compartido creado', 'success');
+          } catch {
+            toast('Error al crear link de uso compartido', 'error');
+          }
+          setShareLoading(false);
+        }}
+        shareLoading={shareLoading}
+        userName={user?.name}
+      />
+      <div className="md:hidden flex items-center gap-1.5 px-2 py-1.5 bg-frame-900/50 border-b border-white/[0.06] review-header-tools">
+        <button
+          onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+          className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all whitespace-nowrap bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
+        >
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+          Panel
+        </button>
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all whitespace-nowrap bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
+        >
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Comments
+        </button>
+        <button
+          onClick={() => setDrawing(!drawing)}
+          className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all whitespace-nowrap active:scale-90 ${
+            drawing ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+          }`}
+        >
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          Annotate
+        </button>
+      </div>
 
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 flex flex-col bg-black relative review-container" ref={containerRef}>
