@@ -202,6 +202,16 @@ function ReviewPage() {
 
   const handleWaiting = () => setVideoBuffering(true);
   const handleCanPlay = () => setVideoBuffering(false);
+  const handlePlaying = () => { setPlaying(true); setVideoBuffering(false); };
+
+  const timeUpdateThrottle = useRef(0);
+  const handleTimeUpdateThrottled = () => {
+    if (!videoRef.current) return;
+    const now = Date.now();
+    if (now - timeUpdateThrottle.current < 200) return;
+    timeUpdateThrottle.current = now;
+    setCurrentTime(videoRef.current.currentTime);
+  };
 
   const togglePlay = useCallback(() => {
     if (!videoRef.current) return;
@@ -971,12 +981,13 @@ function ReviewPage() {
               className="max-w-full max-h-full outline-none"
               style={{ objectFit: fitMode }}
               src={videoSrc}
-              onTimeUpdate={handleTimeUpdate}
+              onTimeUpdate={handleTimeUpdateThrottled}
               onLoadedMetadata={handleLoadedMetadata}
               onError={handleVideoError}
               onWaiting={handleWaiting}
               onCanPlay={handleCanPlay}
-              onPlay={() => setPlaying(true)}
+              onPlaying={handlePlaying}
+              onPlay={handlePlaying}
               onPause={() => setPlaying(false)}
               onClick={togglePlay}
               onContextMenu={handleContextMenu}
