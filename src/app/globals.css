@@ -11,6 +11,12 @@
   --radius-xl: 1.25rem;
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --glass-bg: rgba(24, 24, 27, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-blur: 24px;
+  --glass-shine: rgba(255, 255, 255, 0.03);
+  --glass-edge: rgba(255, 255, 255, 0.04);
+  --nav-height: 64px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -62,6 +68,29 @@ body {
   }
   .glass-panel {
     @apply bg-frame-900/70 backdrop-blur-xl border border-frame-700/30;
+  }
+  .liquid-glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    border-top: 1px solid var(--glass-border);
+  }
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, var(--glass-shine) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .liquid-glass::after {
+    content: '';
+    position: absolute;
+    top: -0.5px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    pointer-events: none;
   }
 }
 

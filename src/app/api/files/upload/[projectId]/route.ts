@@ -20,11 +20,25 @@ export async function POST(request: NextRequest, { params }: { params: { project
   const ext = path.extname(file.name);
   const fileName = `${uuidv4()}${ext}`;
   const filePath = path.join(UPLOADS_DIR, fileName);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(filePath, buffer);
 
+  // stream to disk instead of buffering (avoids OOM for large files)
+  const writeStream = fs.createWriteStream(filePath);
+  const reader = (file as any).stream().getReader();
+  const pump = async () => {
+    const { done, value } = await reader.read();
+    if (done) { writeStream.end(); return; }
+    writeStream.write(Buffer.from(value));
+    return pump();
+  };
+  await pump();
+  await new Promise<void>((resolve, reject) => {
+    writeStream.on('finish', resolve);
+    writeStream.on('error', reject);
+  });
+
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
   const fileId = uuidv4();
-  const fileSize = buffer.length;
 
   db.prepare(`
     INSERT INTO files (id, project_id, name, original_name, mime_type, size, status, uploaded_by)

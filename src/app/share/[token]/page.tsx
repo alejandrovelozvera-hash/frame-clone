@@ -90,15 +90,15 @@ export default function SharedView() {
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col">
-      <header className="bg-gray-900 border-b border-gray-800 px-4 py-2 flex items-center justify-between shrink-0">
+      <header className="bg-gray-900/70 backdrop-blur-2xl border-b border-white/[0.06] px-4 py-2 flex items-center justify-between shrink-0">
         <h1 className="text-white font-semibold text-sm truncate">{data.original_name || data.file_name}</h1>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500 hidden sm:inline">{data.project_name}</span>
+          <span className="text-xs text-white/30 hidden sm:inline">{data.project_name}</span>
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            className="sm:hidden p-2 text-gray-400 hover:text-white transition-colors"
+            className="sm:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-all active:scale-90"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </button>
@@ -112,7 +112,7 @@ export default function SharedView() {
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
               style={{ objectFit: 'contain' }}
-              src={`/api/files/stream/${data.file_id}`}
+              src={`/api/files/stream/${data.file_id}?t=${Date.now()}`}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onPlay={() => setPlaying(true)}
@@ -126,12 +126,12 @@ export default function SharedView() {
         </div>
 
         {mobileSidebarOpen && (
-          <div className="sm:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileSidebarOpen(false)} />
+          <div className="sm:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setMobileSidebarOpen(false)} />
         )}
 
-        <div className={`${mobileSidebarOpen ? 'fixed right-0 top-0 bottom-0 w-[85vw] z-50 border-l border-gray-800' : 'hidden sm:flex'} w-80 bg-gray-900 flex-col shrink-0`}>
-          <div className="p-3 border-b border-gray-800">
-            <h2 className="text-white text-xs font-semibold uppercase tracking-wider mb-2">Comentarios</h2>
+        <div className={`${mobileSidebarOpen ? 'fixed right-0 top-0 bottom-0 w-[85vw] z-50 border-l border-white/[0.06]' : 'hidden sm:flex'} w-80 bg-gray-900/80 backdrop-blur-2xl flex-col shrink-0`}>
+          <div className="p-3 border-b border-white/[0.04]">
+            <h2 className="text-white text-[11px] font-semibold uppercase tracking-[0.08em] mb-2">Comentarios</h2>
             {showNameInput ? (
               <div className="flex gap-2">
                 <input
@@ -139,11 +139,11 @@ export default function SharedView() {
                   value={visitorName}
                   onChange={e => setVisitorName(e.target.value)}
                   placeholder="Tu nombre"
-                  className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                 />
                 <button
                   onClick={() => { localStorage.setItem('share_visitor_name', visitorName); setShowNameInput(false); }}
-                  className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700"
+                  className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90"
                 >
                   OK
                 </button>
@@ -156,33 +156,33 @@ export default function SharedView() {
                   onChange={e => setCommentText(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddComment()}
                   placeholder={`Comentar en ${formatTime(currentTime)}...`}
-                  className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                 />
-                <button onClick={handleAddComment} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700">Enviar</button>
+                <button onClick={handleAddComment} className="px-3 py-2 bg-blue-500/20 text-blue-400 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-all active:scale-90">Enviar</button>
               </div>
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            <p className="text-xs text-gray-500 mb-2">Comentando como <span className="text-gray-300 font-medium">{visitorName}</span></p>
+          <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin">
+            <p className="text-[11px] text-white/30 mb-2">Comentando como <span className="text-white/60 font-medium">{visitorName}</span></p>
             {comments.map((c: any) => (
-              <div key={c.id} className="p-3 bg-gray-800 rounded-lg">
+              <div key={c.id} className="p-3 bg-white/[0.03] border border-white/[0.04] rounded-xl">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-gray-400 font-medium">{c.visitor_name || c.user_name || 'Anónimo'}</span>
+                  <span className="text-xs text-white/50 font-medium">{c.visitor_name || c.user_name || 'Anónimo'}</span>
                   {c.timecode !== null && (
                     <button
                       onClick={() => { if (videoRef.current) videoRef.current.currentTime = c.timecode; }}
-                      className="text-xs text-blue-400 hover:text-blue-300 font-mono"
+                      className="text-xs text-blue-400/70 hover:text-blue-300 font-mono transition-colors"
                     >
                       {formatTime(c.timecode)}
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-white">{c.content}</p>
+                <p className="text-xs text-white/80">{c.content}</p>
               </div>
             ))}
             {comments.length === 0 && (
-              <p className="text-xs text-gray-500 text-center py-8">Sin comentarios aún</p>
+              <p className="text-xs text-white/20 text-center py-8">Sin comentarios aún</p>
             )}
           </div>
         </div>

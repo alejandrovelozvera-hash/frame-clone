@@ -46,6 +46,7 @@ function ReviewPage() {
   const [videoBuffering, setVideoBuffering] = useState(false);
   const [fileProcessing, setFileProcessing] = useState(false);
   const [fitMode, setFitMode] = useState<'contain' | 'cover' | 'fill'>('contain');
+  const [videoSrc, setVideoSrc] = useState('');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -77,6 +78,10 @@ function ReviewPage() {
       setCommentList(data.comments || []);
       setDuration(data.duration || 0);
       setFileProcessing(data.status === 'processing');
+
+      if (data.status !== 'processing' && data.status !== 'error') {
+        setVideoSrc(`/api/files/stream/${params.fileId}?t=${Date.now()}`);
+      }
 
       const annots = await annotationsApi.list(params.fileId as string);
       setAnnotationsList(annots);
@@ -188,10 +193,8 @@ function ReviewPage() {
 
   const handleRetry = () => {
     setVideoError('');
+    setVideoSrc(`/api/files/stream/${params.fileId}?t=${Date.now()}`);
     setRetryCount(c => c + 1);
-    if (videoRef.current) {
-      videoRef.current.load();
-    }
   };
 
   const handleWaiting = () => setVideoBuffering(true);
@@ -473,62 +476,64 @@ function ReviewPage() {
 
   if (!file) return null;
 
-  const streamUrl = `/api/files/stream/${params.fileId}`;
-
   return (
     <div className="h-screen bg-frame-950 flex flex-col overflow-hidden">
-      <header className="review-header bg-frame-900 border-b border-frame-800 px-4 py-2 flex items-center justify-between shrink-0">
+      <header className="review-header bg-frame-900/70 backdrop-blur-2xl border-b border-white/[0.06] px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push(`/project/${projectId}`)} className="text-frame-400 hover:text-white transition-colors">
+          <button onClick={() => router.push(`/project/${projectId}`)} className="text-frame-400 hover:text-white transition-all active:scale-90 p-1 -ml-1">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <h1 className="text-white font-semibold text-sm truncate max-w-md">{file.original_name}</h1>
-          <span className="text-xs text-frame-500">{formatTime(duration)}</span>
+          <span className="text-xs text-white/40">{formatTime(duration)}</span>
         </div>
 
-        <div className="flex items-center gap-3">
-          {onlineReviewers.map((r: any, i: number) => (
-            <span key={r.userId || i} className="text-xs text-frame-400">{r.userEmail || 'User'}</span>
-          ))}
-          <button
-            onClick={async () => {
-              setShareLoading(true);
-              try {
-                const res = await fetch(`/api/share/create/${params.fileId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' }, body: '{}' });
-                const data = await res.json();
-                setShareUrl(data.url);
-                setShowShareModal(true);
-                toast('Link de uso compartido creado', 'success');
-              } catch {
-                toast('Error al crear link de uso compartido', 'error');
-              }
-              setShareLoading(false);
-            }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-frame-800 text-frame-300 hover:text-white"
-          >
-            {shareLoading ? '...' : 'Share'}
-          </button>
-          <button
-            onClick={() => setDrawing(!drawing)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${drawing ? 'bg-blue-600 text-white' : 'bg-frame-800 text-frame-300 hover:text-white'}`}
-          >
-            Annotate
-          </button>
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
+            {onlineReviewers.map((r: any, i: number) => (
+              <div key={r.userId || i} className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/10 flex items-center justify-center">
+                <span className="text-[10px] text-white/70 font-medium">{(r.userEmail || 'U')[0].toUpperCase()}</span>
+              </div>
+            ))}
+            <button
+              onClick={async () => {
+                setShareLoading(true);
+                try {
+                  const res = await fetch(`/api/share/create/${params.fileId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' }, body: '{}' });
+                  const data = await res.json();
+                  setShareUrl(data.url);
+                  setShowShareModal(true);
+                  toast('Link de uso compartido creado', 'success');
+                } catch {
+                  toast('Error al crear link de uso compartido', 'error');
+                }
+                setShareLoading(false);
+              }}
+              className="px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
+            >
+              {shareLoading ? '...' : 'Share'}
+            </button>
+            <button
+              onClick={() => setDrawing(!drawing)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all active:scale-90 ${drawing ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'}`}
+            >
+              Annotate
+            </button>
+            <span className="text-xs text-white/30">{user?.name}</span>
+          </div>
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            className="md:hidden px-2 py-1.5 rounded-lg text-xs font-medium bg-frame-800 text-frame-300 hover:text-white"
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-all active:scale-90"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <button
             onClick={() => setShowComments(!showComments)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${showComments ? 'bg-frame-800 text-white' : 'bg-frame-800 text-frame-400 hover:text-white'}`}
+            className="md:hidden px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-white/5 text-white/60 hover:text-white hover:bg-white/10 active:scale-90"
           >
             Comments
           </button>
-          <span className="text-xs text-frame-500">{user?.name}</span>
         </div>
       </header>
 
@@ -560,7 +565,7 @@ function ReviewPage() {
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
               style={{ objectFit: fitMode }}
-              src={streamUrl}
+              src={videoSrc}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onError={handleVideoError}
@@ -697,10 +702,10 @@ function ReviewPage() {
         </div>
 
         {mobileSidebarOpen && (
-          <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileSidebarOpen(false)} />
+          <div className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setMobileSidebarOpen(false)} />
         )}
-        <div className={`review-sidebar ${mobileSidebarOpen ? 'open' : ''} w-80 bg-frame-900 border-l border-frame-800 flex flex-col shrink-0`}>
-          <div className="flex gap-1 p-2 bg-frame-950/50 border-b border-frame-800/50">
+        <div className={`review-sidebar ${mobileSidebarOpen ? 'open' : ''} w-80 bg-frame-900/80 backdrop-blur-2xl border-l border-white/[0.06] flex flex-col shrink-0`}>
+          <div className="flex gap-1 p-2 bg-black/20 border-b border-white/[0.04]">
             {[
               { id: 'comments', label: 'Comentarios', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
               { id: 'annotations', label: 'Notas', icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z' },
@@ -710,7 +715,7 @@ function ReviewPage() {
               <button
                 key={tab.id}
                 onClick={() => setSidebarTab(tab.id as any)}
-                className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-lg text-[10px] font-medium transition-all ${sidebarTab === tab.id ? 'bg-blue-500/10 text-blue-400' : 'text-frame-500 hover:text-frame-300 hover:bg-frame-800/50'}`}
+                className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl text-[10px] font-medium transition-all active:scale-90 ${sidebarTab === tab.id ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />

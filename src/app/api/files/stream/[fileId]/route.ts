@@ -15,11 +15,39 @@ const MIME_TYPES: Record<string, string> = {
   '.flv': 'video/x-flv',
   '.m4v': 'video/mp4',
   '.3gp': 'video/3gpp',
+  '.ts': 'video/mp2t',
+  '.m3u8': 'application/x-mpegURL',
 };
+
+function streamFile(filePath: string, start: number, end: number): ReadableStream<Uint8Array> {
+  try {
+    const nodeStream = fs.createReadStream(filePath, { start, end });
+    return (Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>);
+  } catch {
+    const chunkSize = end - start + 1;
+    const buffer = Buffer.alloc(chunkSize);
+    const fd = fs.openSync(filePath, 'r');
+    fs.readSync(fd, buffer, 0, chunkSize, start);
+    fs.closeSync(fd);
+    return new ReadableStream({
+      start(controller) {
+        controller.enqueue(new Uint8Array(buffer));
+        controller.close();
+      },
+    });
+  }
+}
 
 export async function GET(request: NextRequest, { params }: { params: { fileId: string } }) {
   const file = db.prepare('SELECT * FROM files WHERE id = ?').get(params.fileId) as any;
   if (!file) return new Response('Not found', { status: 404 });
+
+  if (file.status === 'processing') {
+    return new Response('Processing', { status: 503 });
+  }
+  if (file.status === 'error') {
+    return new Response('Processing error', { status: 500 });
+  }
 
   const version = db.prepare('SELECT * FROM versions WHERE file_id = ? ORDER BY version_number DESC LIMIT 1').get(params.fileId) as any;
   if (!version || !version.file_path || !fs.existsSync(version.file_path)) {
@@ -39,6 +67,7 @@ export async function GET(request: NextRequest, { params }: { params: { fileId: 
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
     'Access-Control-Allow-Headers': 'Range, Content-Type',
     'Cache-Control': 'no-cache',
+    'Content-Disposition': 'inline',
   };
 
   if (request.method === 'OPTIONS') {
@@ -58,52 +87,31 @@ export async function GET(request: NextRequest, { params }: { params: { fileId: 
     }
 
     const chunkSize = end - start + 1;
-    try {
-      const nodeStream = fs.createReadStream(version.file_path, { start, end });
-      const webStream = Readable.toWeb(nodeStream) as ReadableStream;
-      return new Response(webStream, {
-        status: 206,
-        headers: {
-          ...baseHeaders,
-          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-          'Content-Length': String(chunkSize),
-        },
-      });
-    } catch {
-      const buffer = Buffer.alloc(chunkSize);
-      const fd = fs.openSync(version.file_path, 'r');
-      fs.readSync(fd, buffer, 0, chunkSize, start);
-      fs.closeSync(fd);
-      return new Response(buffer, {
-        status: 206,
-        headers: {
-          ...baseHeaders,
-          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-          'Content-Length': String(chunkSize),
-        },
-      });
-    }
+    const body = streamFile(version.file_path, start, end);
+    return new Response(body, {
+      status: 206,
+      headers: {
+        ...baseHeaders,
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Content-Length': String(chunkSize),
+      },
+    });
   }
 
-  try {
-    const nodeStream = fs.createReadStream(version.file_path);
-    const webStream = Readable.toWeb(nodeStream) as ReadableStream;
-    return new Response(webStream, {
-      status: 200,
-      headers: { ...baseHeaders, 'Content-Length': String(fileSize) },
-    });
-  } catch {
-    const fullBuffer = fs.readFileSync(version.file_path);
-    return new Response(fullBuffer, {
-      status: 200,
-      headers: { ...baseHeaders, 'Content-Length': String(fileSize) },
-    });
-  }
+  const nodeStream = fs.createReadStream(version.file_path);
+  const webStream = Readable.toWeb(nodeStream) as ReadableStream;
+  return new Response(webStream, {
+    status: 200,
+    headers: { ...baseHeaders, 'Content-Length': String(fileSize) },
+  });
 }
 
 export async function HEAD(request: NextRequest, { params }: { params: { fileId: string } }) {
   const file = db.prepare('SELECT * FROM files WHERE id = ?').get(params.fileId) as any;
   if (!file) return new Response(null, { status: 404 });
+
+  if (file.status === 'processing') return new Response(null, { status: 503 });
+  if (file.status === 'error') return new Response(null, { status: 500 });
 
   const version = db.prepare('SELECT * FROM versions WHERE file_id = ? ORDER BY version_number DESC LIMIT 1').get(params.fileId) as any;
   if (!version || !version.file_path || !fs.existsSync(version.file_path)) {
