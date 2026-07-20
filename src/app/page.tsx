@@ -86,33 +86,6 @@ function LoginPage() {
     { num: '04', title: 'Aprobá y finalizá', desc: 'Resolvé comentarios, marcá versiones como aprobadas y exportá el historial completo de la revisión.' },
   ];
 
-  const plans = [
-    {
-      name: 'Starter',
-      price: 'Gratis',
-      desc: 'Para profesionales que empiezan',
-      features: ['1 proyecto activo', '5 versiones por proyecto', '3 revisores por proyecto', 'Comentarios con timestamp', 'Anotaciones en frame'],
-      cta: 'Comenzar gratis',
-      featured: false,
-    },
-    {
-      name: 'Pro',
-      price: '$19/mes',
-      desc: 'Para equipos creativos',
-      features: ['Proyectos ilimitados', 'Versiones ilimitadas', '10 revisores por proyecto', 'Colaboración en tiempo real', 'Historial de revisiones', 'Prioridad en procesamiento'],
-      cta: 'Elegir Pro',
-      featured: true,
-    },
-    {
-      name: 'Enterprise',
-      price: '$49/mes',
-      desc: 'Para estudios y agencias',
-      features: ['Todo lo de Pro', 'Revisores ilimitados', 'Compartir por link público', 'Roles y permisos', 'API de integración', 'Soporte prioritario 24/7'],
-      cta: 'Contactar',
-      featured: false,
-    },
-  ];
-
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
     const el = document.getElementById(id);
@@ -136,7 +109,6 @@ function LoginPage() {
               <div className="hidden md:flex items-center gap-6">
                 <button onClick={() => scrollTo('features')} className="text-xs text-frame-400 hover:text-white transition-colors">Features</button>
                 <button onClick={() => scrollTo('how-it-works')} className="text-xs text-frame-400 hover:text-white transition-colors">Cómo funciona</button>
-                <button onClick={() => scrollTo('pricing')} className="text-xs text-frame-400 hover:text-white transition-colors">Precios</button>
               </div>
             </div>
             <div className="hidden sm:flex items-center gap-3">
@@ -161,7 +133,6 @@ function LoginPage() {
             <div className="px-4 py-3 space-y-1">
               <button onClick={() => scrollTo('features')} className="w-full text-left px-3 py-2 rounded-lg text-sm text-frame-300 hover:text-white hover:bg-white/5 transition-colors">Features</button>
               <button onClick={() => scrollTo('how-it-works')} className="w-full text-left px-3 py-2 rounded-lg text-sm text-frame-300 hover:text-white hover:bg-white/5 transition-colors">Cómo funciona</button>
-              <button onClick={() => scrollTo('pricing')} className="w-full text-left px-3 py-2 rounded-lg text-sm text-frame-300 hover:text-white hover:bg-white/5 transition-colors">Precios</button>
               <hr className="border-white/[0.06] my-2" />
               <button onClick={() => openAuth('login')} className="w-full text-left px-3 py-2 rounded-lg text-sm text-frame-300 hover:text-white hover:bg-white/5 transition-colors">Iniciar sesión</button>
               <button onClick={() => openAuth('register')} className="w-full text-left px-3 py-2 rounded-lg text-sm text-blue-400 font-medium hover:bg-blue-500/10 transition-colors">Registrarse</button>
@@ -254,50 +225,18 @@ function LoginPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-frame-900/30">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4">Planes simples, sin sorpresas</h2>
-            <p className="text-frame-400 text-sm sm:text-base">Elegí el plan que mejor se adapte a tu equipo. Cancelá cuando quieras.</p>
+      {/* Free tag */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-frame-900/30">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-[11px] text-green-400 font-medium mb-4">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+            Completamente gratis
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            {plans.map((p, i) => (
-              <div
-                key={i}
-                className={`rounded-xl p-5 sm:p-6 border transition-all duration-300 ${
-                  p.featured
-                    ? 'bg-blue-600/10 border-blue-500/30 shadow-lg shadow-blue-600/10 scale-[1.02] sm:scale-105'
-                    : 'bg-frame-900/60 border-frame-800/60 hover:border-frame-700/60'
-                }`}
-              >
-                <h3 className="text-white font-semibold text-base mb-1">{p.name}</h3>
-                <p className="text-frame-500 text-xs mb-4">{p.desc}</p>
-                <div className="mb-4">
-                  <span className="text-2xl sm:text-3xl font-bold text-white">{p.price}</span>
-                  {p.price !== 'Gratis' && <span className="text-frame-500 text-xs ml-1">/mes</span>}
-                </div>
-                <ul className="space-y-2 mb-6">
-                  {p.features.map((f, j) => (
-                    <li key={j} className="flex items-start gap-2 text-xs text-frame-400">
-                      <svg className="w-3.5 h-3.5 text-green-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => openAuth(p.featured ? 'register' : 'register')}
-                  className={`w-full py-2.5 rounded-xl text-xs font-medium transition-all active:scale-95 ${
-                    p.featured
-                      ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20'
-                      : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/[0.06]'
-                  }`}
-                >
-                  {p.cta}
-                </button>
-              </div>
-            ))}
-          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">Sin costo, sin límites</h2>
+          <p className="text-frame-400 text-sm sm:text-base mb-6">Frame es y será siempre gratis para tu equipo. Subí videos, invitá revisores y colaborá sin restricciones.</p>
+          <button onClick={() => openAuth('register')} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-all active:scale-95 shadow-lg shadow-blue-600/20">
+            Empezar ahora
+          </button>
         </div>
       </section>
 
@@ -319,7 +258,6 @@ function LoginPage() {
           <p className="text-frame-600 text-xs">© {new Date().getFullYear()} Frame. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4 text-[11px] text-frame-500">
             <button onClick={() => scrollTo('features')} className="hover:text-frame-300 transition-colors">Features</button>
-            <button onClick={() => scrollTo('pricing')} className="hover:text-frame-300 transition-colors">Precios</button>
           </div>
         </div>
       </footer>
