@@ -159,7 +159,7 @@ export default function CommentsPanel({
             id="comment-editor"
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
-            placeholder="Agregá un comentario... (__bold__ *itálica* `código`)"
+            placeholder="Agrega un comentario... (__bold__ *itálica* `código`)"
             className="w-full bg-transparent text-xs text-white/80 placeholder-frame-500 px-3 py-2 resize-none focus:outline-none min-h-[60px]"
             onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSubmitComment(); }}
           />
@@ -183,7 +183,7 @@ export default function CommentsPanel({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
             <p className="text-frame-500 text-xs">Sin comentarios</p>
-            <p className="text-frame-600 text-[10px] mt-1">Usá el editor de arriba para comenzar</p>
+            <p className="text-frame-600 text-[10px] mt-1">Usa el editor de arriba para comenzar</p>
           </div>
         )}
 
@@ -382,7 +382,7 @@ function CommentCard({
               <input
                 value={replyText}
                 onChange={e => onReplyTextChange(e.target.value)}
-                placeholder="Escribí una respuesta..."
+                placeholder="Escribe una respuesta..."
                 className="flex-1 px-2.5 py-1.5 bg-frame-800/80 border border-frame-700/50 rounded-lg text-xs text-white/80 placeholder-frame-500 focus:outline-none focus:border-blue-500/30"
                 onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) onSubmitReply(); }}
               />

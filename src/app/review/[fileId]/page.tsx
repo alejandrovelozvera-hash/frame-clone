@@ -180,14 +180,14 @@ function ReviewPage() {
       const codes: Record<number, string> = {
         1: 'Carga de video abortada',
         2: 'Error de red al cargar el video',
-        3: 'Formato de video no soportado. Probá subir un video H.264 (.mp4)',
-        4: 'Video no disponible. Probá subir un video H.264 (.mp4)',
+        3: 'Formato de video no soportado. Prueba subir un video H.264 (.mp4)',
+        4: 'Video no disponible. Prueba subir un video H.264 (.mp4)',
       };
       msg = codes[video.error.code] || 'Error al cargar el video';
     }
     const anyVideo = video as any;
     if (!anyVideo?.videoWidth && anyVideo?.audioTracks?.length) {
-      msg = 'El códec de video no es compatible con este navegador. Usá H.264 (.mp4)';
+      msg = 'El códec de video no es compatible con este navegador. Usa H.264 (.mp4)';
     }
     setVideoError(msg);
     setVideoReady(false);
@@ -563,7 +563,7 @@ function ReviewPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                   <p className="text-frame-500 text-xs">Sin comentarios aún</p>
-                  <p className="text-frame-600 text-[10px] mt-1">Pausá el video y comentá en un frame específico</p>
+                  <p className="text-frame-600 text-[10px] mt-1">Pausa el video y comenta en un frame específico</p>
                 </div>
               )}
               {commentList.filter((c: any) => !c.parent_id).map((comment: any) => (
@@ -668,7 +668,7 @@ function ReviewPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
                   <p className="text-frame-500 text-xs">Sin anotaciones</p>
-                  <p className="text-frame-600 text-[10px] mt-1">Activá el modo dibujo para anotar</p>
+                  <p className="text-frame-600 text-[10px] mt-1">Activa el modo dibujo para anotar</p>
                 </div>
               )}
               {annotationsList.map((ann: any) => (

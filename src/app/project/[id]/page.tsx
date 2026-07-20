@@ -236,7 +236,7 @@ function ProjectPage() {
               </svg>
             </div>
             <p className="text-frame-300 text-lg font-medium mb-1">Sin archivos</p>
-            <p className="text-frame-500 text-sm mb-6">Subí un video para empezar a revisar</p>
+            <p className="text-frame-500 text-sm mb-6">Sube un video para empezar a revisar</p>
             <button
               onClick={() => fileInputRef.current?.click()}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all active:scale-[0.97]"

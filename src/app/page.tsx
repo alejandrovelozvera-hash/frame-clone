@@ -48,7 +48,7 @@ function LoginPage() {
         </svg>
       ),
       title: 'Frame-Accurate Review',
-      desc: 'Pausá en cualquier frame, dibujá anotaciones y dejá comentarios exactamente donde ocurren, con precisión milimétrica.',
+      desc: 'Pausa en cualquier frame, dibuja anotaciones y deja comentarios exactamente donde ocurren, con precisión milimétrica.',
     },
     {
       icon: (
@@ -66,7 +66,7 @@ function LoginPage() {
         </svg>
       ),
       title: 'Gestión de Versiones',
-      desc: 'Subí múltiples versiones, comparalas con tu equipo y mantené todo el historial de cambios sin perder ningún frame.',
+      desc: 'Sube múltiples versiones, compáralas con tu equipo y mantén todo el historial de cambios sin perder ningún frame.',
     },
     {
       icon: (
@@ -75,15 +75,15 @@ function LoginPage() {
         </svg>
       ),
       title: 'Flujo de Aprobación',
-      desc: 'Definí ciclos de revisión, solicitá cambios, aprobá versiones y追踪 todo el proceso con un registro claro y trazable.',
+      desc: 'Define ciclos de revisión, solicita cambios, aprueba versiones y haz seguimiento de todo el proceso con un registro claro y trazable.',
     },
   ];
 
   const steps = [
-    { num: '01', title: 'Subí tu video', desc: 'Cargá tu archivo de video en segundos. Soportamos MP4, MOV y los formatos más comunes.' },
-    { num: '02', title: 'Compartilo con tu equipo', desc: 'Invitá revisores por link o email. Cada uno ve el mismo video sincronizado en tiempo real.' },
-    { num: '03', title: 'Revisá y comentá', desc: 'Pausá en cualquier frame, dibujá anotaciones, dejá comentarios con timestamp y reaccioná con emojis.' },
-    { num: '04', title: 'Aprobá y finalizá', desc: 'Resolvé comentarios, marcá versiones como aprobadas y exportá el historial completo de la revisión.' },
+    { num: '01', title: 'Sube tu video', desc: 'Carga tu archivo de video en segundos. Soportamos MP4, MOV y los formatos más comunes.' },
+    { num: '02', title: 'Compártelo con tu equipo', desc: 'Invita revisores por link o email. Cada uno ve el mismo video sincronizado en tiempo real.' },
+    { num: '03', title: 'Revisa y comenta', desc: 'Pausa en cualquier frame, dibuja anotaciones, deja comentarios con timestamp y reacciona con emojis.' },
+    { num: '04', title: 'Aprueba y finaliza', desc: 'Resuelve comentarios, marca versiones como aprobadas y exporta el historial completo de la revisión.' },
   ];
 
   const scrollTo = (id: string) => {
@@ -149,7 +149,7 @@ function LoginPage() {
             Colaboración en tiempo real
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-            Revisá videos en equipo,
+            Revisa videos en equipo,
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">frame por frame</span>
           </h1>
@@ -233,7 +233,7 @@ function LoginPage() {
             Completamente gratis
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">Sin costo, sin límites</h2>
-          <p className="text-frame-400 text-sm sm:text-base mb-6">Frame es y será siempre gratis para tu equipo. Subí videos, invitá revisores y colaborá sin restricciones.</p>
+          <p className="text-frame-400 text-sm sm:text-base mb-6">Frame es y será siempre gratis para tu equipo. Sube videos, invita revisores y colabora sin restricciones.</p>
           <button onClick={() => openAuth('register')} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-all active:scale-95 shadow-lg shadow-blue-600/20">
             Empezar ahora
           </button>
@@ -244,7 +244,7 @@ function LoginPage() {
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4">Listo para probarlo?</h2>
-          <p className="text-frame-400 text-sm sm:text-base mb-8">Comenzá gratis, sin tarjeta de crédito. En 2 minutos tu equipo ya puede estar revisando videos.</p>
+          <p className="text-frame-400 text-sm sm:text-base mb-8">Comienza gratis, sin tarjeta de crédito. En 2 minutos tu equipo ya puede estar revisando videos.</p>
           <button onClick={() => openAuth('register')} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-all active:scale-95 shadow-lg shadow-blue-600/20">
             Crear cuenta gratis
           </button>
@@ -270,7 +270,7 @@ function LoginPage() {
               <div>
                 <h2 className="text-lg font-bold text-white">{isLogin ? 'Iniciar sesión' : 'Crear cuenta'}</h2>
                 <p className="text-frame-400 text-xs mt-0.5">
-                  {isLogin ? 'Accedé a tus proyectos' : 'Comenzá a revisar videos en equipo'}
+                  {isLogin ? 'Accede a tus proyectos' : 'Comienza a revisar videos en equipo'}
                 </p>
               </div>
               <button onClick={() => setShowAuthModal(false)} className="p-1.5 text-frame-500 hover:text-white transition-colors">
@@ -337,7 +337,7 @@ function LoginPage() {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-xs text-frame-400 hover:text-frame-200 transition-colors"
               >
-                {isLogin ? '¿No tenés cuenta? Registrate' : '¿Ya tenés cuenta? Iniciá sesión'}
+                {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
               </button>
             </div>
           </div>
