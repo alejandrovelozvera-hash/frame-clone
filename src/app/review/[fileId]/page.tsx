@@ -252,6 +252,56 @@ function ReviewPage() {
     return () => document.removeEventListener('fullscreenchange', handler);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          togglePlay();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          handleSeek(Math.max(0, currentTime - 5));
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          handleSeek(Math.min(duration, currentTime + 5));
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setVolume(v => { const nv = Math.min(1, v + 0.1); if (videoRef.current) videoRef.current.volume = nv; setMuted(false); return nv; });
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          setVolume(v => { const nv = Math.max(0, v - 0.1); if (videoRef.current) videoRef.current.volume = nv; return nv; });
+          break;
+        case 'Escape':
+          if (showShareModal) setShowShareModal(false);
+          else if (drawing) setDrawing(false);
+          break;
+        case 'f':
+        case 'F':
+          toggleFullscreen();
+          break;
+        case 'm':
+        case 'M':
+          toggleMute();
+          break;
+        case 'a':
+        case 'A':
+          setDrawing(d => !d);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentTime, duration, playing, drawing, showShareModal, togglePlay]);
+
   const formatTime = (t: number) => {
     const m = Math.floor(t / 60);
     const s = Math.floor(t % 60);

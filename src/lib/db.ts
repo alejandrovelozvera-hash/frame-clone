@@ -97,5 +97,14 @@ try {
 try {
   db.exec("ALTER TABLE shared_links ADD COLUMN allow_annotations INTEGER DEFAULT 1");
 } catch {}
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS comment_reactions (
+    id TEXT PRIMARY KEY, comment_id TEXT NOT NULL, user_id TEXT NOT NULL,
+    emoji TEXT NOT NULL, is_reply INTEGER DEFAULT 0, reply_id TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(comment_id, user_id, emoji, is_reply, reply_id),
+    FOREIGN KEY (comment_id) REFERENCES comments(id)
+  )`);
+} catch {}
 
 export default db;

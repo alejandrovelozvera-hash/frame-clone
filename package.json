@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",
+    "socket": "npx tsx socket-server.ts",
     "build": "next build",
     "start": "next start",
     "postinstall": "npm rebuild better-sqlite3",
