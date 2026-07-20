@@ -6,7 +6,7 @@
     "dev": "next dev -p 3001",
     "socket": "npx tsx socket-server.ts",
     "build": "next build",
-    "start": "next start",
+    "start": "npx tsx server.ts",
     "postinstall": "npm rebuild better-sqlite3",
     "lint": "next lint"
   },
@@ -36,6 +36,7 @@
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.23.1",
     "typescript": "^5.3.3"
   }
 }
