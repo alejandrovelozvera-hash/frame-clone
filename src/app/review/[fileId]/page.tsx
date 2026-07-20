@@ -1047,16 +1047,17 @@ function ReviewPage() {
           </div>
 
           <div className="review-controls glass-panel rounded-none px-4 py-2 border-t border-frame-700/30">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <button onClick={togglePlay} className="p-1.5 text-white hover:text-blue-400 transition-all active:scale-90">
-                {playing ? (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
-                ) : (
-                  <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                )}
-              </button>
+            {/* Row 1: play, volume, time, fit, fullscreen */}
+            <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4">
+              <div className="flex items-center gap-1">
+                <button onClick={togglePlay} className="p-1.5 text-white hover:text-blue-400 transition-all active:scale-90">
+                  {playing ? (
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+                  ) : (
+                    <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  )}
+                </button>
 
-              <div className="flex items-center gap-1.5">
                 <button onClick={toggleMute} className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90">
                   {muted || volume === 0 ? (
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" /></svg>
@@ -1071,12 +1072,54 @@ function ReviewPage() {
                   step="0.05"
                   value={muted ? 0 : volume}
                   onChange={handleVolumeChange}
-                  className="w-16 sm:w-20"
+                  className="hidden sm:block w-20"
                 />
               </div>
 
-              <span className="text-[11px] text-frame-400 font-mono min-w-[70px] tabular-nums">{formatTime(currentTime)}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-[11px] text-frame-400 font-mono min-w-[70px] tabular-nums">{formatTime(currentTime)}</span>
+                <span className="text-[11px] text-frame-600 hidden sm:inline">/</span>
+                <span className="text-[11px] text-frame-500 font-mono tabular-nums hidden sm:inline">{formatTime(duration)}</span>
+              </div>
 
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setFitMode(f => f === 'contain' ? 'cover' : f === 'cover' ? 'fill' : 'contain')}
+                  className={`p-1.5 transition-all active:scale-90 ${
+                    fitMode === 'cover' ? 'text-blue-400' : fitMode === 'fill' ? 'text-frame-200' : 'text-frame-400 hover:text-white'
+                  }`}
+                  title={
+                    fitMode === 'contain' ? 'Ajustar (contain)' :
+                    fitMode === 'cover' ? 'Cubrir (cover)' : 'Llenar (fill)'
+                  }
+                >
+                  {fitMode === 'contain' && (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                  )}
+                  {fitMode === 'cover' && (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                    </svg>
+                  )}
+                  {fitMode === 'fill' && (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                  )}
+                </button>
+
+                <button onClick={toggleFullscreen} className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Row 2: full-width seekbar + duration on mobile — desktop this is inline */}
+            <div className="flex items-center gap-3 mt-2 sm:mt-0 sm:hidden">
               <div className="flex-1">
                 <input
                   type="range"
@@ -1088,41 +1131,23 @@ function ReviewPage() {
                   className="w-full"
                 />
               </div>
+              <span className="text-[11px] text-frame-500 font-mono tabular-nums whitespace-nowrap">{formatTime(duration)}</span>
+            </div>
 
+            {/* Desktop seekbar (inline) */}
+            <div className="hidden sm:flex items-center gap-4 flex-1 mx-4">
+              <div className="flex-1">
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 100}
+                  step="0.01"
+                  value={currentTime}
+                  onChange={(e) => handleSeek(parseFloat(e.target.value))}
+                  className="w-full"
+                />
+              </div>
               <span className="text-[11px] text-frame-500 font-mono tabular-nums">{formatTime(duration)}</span>
-
-              <button
-                onClick={() => setFitMode(f => f === 'contain' ? 'cover' : f === 'cover' ? 'fill' : 'contain')}
-                className={`p-1.5 transition-all active:scale-90 ${
-                  fitMode === 'cover' ? 'text-blue-400' : fitMode === 'fill' ? 'text-frame-200' : 'text-frame-400 hover:text-white'
-                }`}
-                title={
-                  fitMode === 'contain' ? 'Ajustar (contain)' :
-                  fitMode === 'cover' ? 'Cubrir (cover)' : 'Llenar (fill)'
-                }
-              >
-                {fitMode === 'contain' && (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                )}
-                {fitMode === 'cover' && (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                  </svg>
-                )}
-                {fitMode === 'fill' && (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                )}
-              </button>
-
-              <button onClick={toggleFullscreen} className="p-1.5 text-frame-400 hover:text-white transition-all active:scale-90">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
-                </svg>
-              </button>
             </div>
           </div>
 
