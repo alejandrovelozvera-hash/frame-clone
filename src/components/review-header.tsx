@@ -14,8 +14,6 @@ interface ReviewHeaderProps {
   resolution?: string;
   fps?: number;
   reviewers?: Reviewer[];
-  drawing: boolean;
-  onToggleDrawing: () => void;
   onBack: () => void;
   onShare: () => void;
   shareLoading?: boolean;
@@ -36,8 +34,6 @@ export default function ReviewHeader({
   resolution,
   fps,
   reviewers = [],
-  drawing,
-  onToggleDrawing,
   onBack,
   onShare,
   shareLoading = false,
@@ -121,17 +117,6 @@ export default function ReviewHeader({
             ) : (
               'Share'
             )}
-          </button>
-
-          <button
-            onClick={onToggleDrawing}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all active:scale-90 ${
-              drawing
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            Annotate
           </button>
 
           {userName && (

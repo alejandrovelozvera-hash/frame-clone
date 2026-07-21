@@ -44,6 +44,7 @@ function ReviewPage() {
   const [videoReady, setVideoReady] = useState(false);
   const [videoError, setVideoError] = useState('');
   const [videoBuffering, setVideoBuffering] = useState(false);
+  useEffect(() => { setDrawing(sidebarTab === 'annotations'); }, [sidebarTab]);
   const [fileProcessing, setFileProcessing] = useState(false);
   const [fitMode, setFitMode] = useState<'contain' | 'cover' | 'fill'>('contain');
   const [videoSrc, setVideoSrc] = useState('');
@@ -894,8 +895,6 @@ function ReviewPage() {
         resolution={file.resolution}
         fps={file.fps}
         reviewers={onlineReviewers}
-        drawing={drawing}
-        onToggleDrawing={() => setDrawing(!drawing)}
         onBack={() => router.push(`/project/${projectId}`)}
         onShare={async () => {
           setShareLoading(true);
