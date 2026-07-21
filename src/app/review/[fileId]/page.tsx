@@ -1027,8 +1027,24 @@ function ReviewPage() {
             )}
           </div>
 
-          <div className="review-controls glass-panel rounded-none px-4 py-2 border-t border-frame-700/30">
-            {/* Row 1: play, volume, time, fit, fullscreen */}
+          <div className="review-controls glass-panel rounded-none px-4 pb-3 pt-0 border-t border-frame-700/30">
+            {/* Full-width seekbar on top */}
+            <div className="flex items-center gap-3 -mx-4 px-4 mb-1">
+              <div className="flex-1">
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 100}
+                  step="0.01"
+                  value={currentTime}
+                  onChange={(e) => handleSeek(parseFloat(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+              <span className="text-[11px] text-frame-500 font-mono tabular-nums whitespace-nowrap">{formatTime(duration)}</span>
+            </div>
+
+            {/* Row: play, volume, time, fit, fullscreen */}
             <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4">
               <div className="flex items-center gap-1">
                 <button onClick={togglePlay} className="p-1.5 text-white hover:text-blue-400 transition-all active:scale-90">
@@ -1097,38 +1113,6 @@ function ReviewPage() {
                   </svg>
                 </button>
               </div>
-            </div>
-
-            {/* Row 2: full-width seekbar + duration on mobile — desktop this is inline */}
-            <div className="flex items-center gap-3 mt-2 sm:mt-0 sm:hidden">
-              <div className="flex-1">
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 100}
-                  step="0.01"
-                  value={currentTime}
-                  onChange={(e) => handleSeek(parseFloat(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-              <span className="text-[11px] text-frame-500 font-mono tabular-nums whitespace-nowrap">{formatTime(duration)}</span>
-            </div>
-
-            {/* Desktop seekbar (inline) */}
-            <div className="hidden sm:flex items-center gap-4 flex-1 mx-4">
-              <div className="flex-1">
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 100}
-                  step="0.01"
-                  value={currentTime}
-                  onChange={(e) => handleSeek(parseFloat(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-              <span className="text-[11px] text-frame-500 font-mono tabular-nums">{formatTime(duration)}</span>
             </div>
           </div>
 
