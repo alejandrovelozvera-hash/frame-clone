@@ -349,18 +349,17 @@ function ProjectPage() {
                 <div className="p-0.5 rounded-2xl bg-gradient-to-b from-frame-700/20 to-transparent transition-all duration-500 group-hover:from-frame-600/30">
                   <div className="bg-frame-950 rounded-xl overflow-hidden border border-frame-800/60 transition-all duration-300 group-hover:border-frame-700/80 group-hover:shadow-lg group-hover:shadow-black/20">
                     <div className="aspect-video bg-frame-900/50 relative flex items-center justify-center">
-                      {file.thumbnail_path ? (
-                        <img
-                          src={`/api/files/thumbnail/${file.id}`}
-                          alt={file.original_name}
-                          className="w-full h-full object-contain bg-frame-950"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                        />
-                      ) : (
+                      <img
+                        src={`/api/files/thumbnail/${file.id}`}
+                        alt={file.original_name}
+                        className="w-full h-full object-contain bg-frame-950"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <svg className="w-12 h-12 text-frame-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
                         </svg>
-                      )}
+                      </div>
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
                         <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
                           <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
