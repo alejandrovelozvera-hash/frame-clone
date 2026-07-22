@@ -105,7 +105,7 @@ function LoginPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center gap-8">
-              <span className="text-white font-bold text-base sm:text-lg tracking-tight">Frame</span>
+              <span className="text-white font-bold text-base sm:text-lg tracking-tight">Video Auditor</span>
               <div className="hidden md:flex items-center gap-6">
                 <button onClick={() => scrollTo('features')} className="text-xs text-frame-400 hover:text-white transition-colors">Features</button>
                 <button onClick={() => scrollTo('how-it-works')} className="text-xs text-frame-400 hover:text-white transition-colors">Cómo funciona</button>
@@ -233,7 +233,7 @@ function LoginPage() {
             Completamente gratis
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">Sin costo, sin límites</h2>
-          <p className="text-frame-400 text-sm sm:text-base mb-6">Frame es y será siempre gratis para tu equipo. Sube videos, invita revisores y colabora sin restricciones.</p>
+          <p className="text-frame-400 text-sm sm:text-base mb-6">Video Auditor es y será siempre gratis para tu equipo. Sube videos, invita revisores y colabora sin restricciones.</p>
           <button onClick={() => openAuth('register')} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-all active:scale-95 shadow-lg shadow-blue-600/20">
             Empezar ahora
           </button>
@@ -254,8 +254,8 @@ function LoginPage() {
       {/* Footer */}
       <footer className="border-t border-white/[0.06] py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-white font-bold text-sm">Frame</span>
-          <p className="text-frame-600 text-xs">© {new Date().getFullYear()} Frame. Todos los derechos reservados.</p>
+          <span className="text-white font-bold text-sm">Video Auditor</span>
+          <p className="text-frame-600 text-xs">© {new Date().getFullYear()} Video Auditor. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4 text-[11px] text-frame-500">
             <button onClick={() => scrollTo('features')} className="hover:text-frame-300 transition-colors">Features</button>
           </div>
