@@ -125,6 +125,14 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('typing', (data: { fileId: string; typing: boolean }) => {
+    socket.to(`file:${data.fileId}`).emit('typing:update', {
+      userId: user.userId,
+      userName: user.email.split('@')[0],
+      typing: data.typing,
+    });
+  });
+
   socket.on('disconnecting', () => {
     socket.rooms.forEach((room) => {
       if (room !== socket.id) {

@@ -24,6 +24,7 @@ function ProjectPage() {
   const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
   const [menuFileId, setMenuFileId] = useState<string | null>(null);
   const [fileSearch, setFileSearch] = useState('');
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
   const [members, setMembers] = useState<any[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -261,8 +262,14 @@ function ProjectPage() {
               <span className="text-sm text-frame-400">{user?.name}</span>
             </div>
 
-            {/* Mobile: hamburger */}
-            <div className="sm:hidden relative">
+            {/* Mobile: search + hamburger */}
+            <div className="sm:hidden flex items-center gap-1">
+              <button onClick={() => setMobileSearchOpen(!mobileSearchOpen)} className="p-1.5 text-frame-400 hover:text-white transition-colors">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+              <div className="relative">
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-1.5 text-frame-400 hover:text-white transition-colors">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -300,7 +307,33 @@ function ProjectPage() {
             </div>
           </div>
         </div>
+      </div>
       </header>
+
+      {mobileSearchOpen && (
+        <div className="sm:hidden border-b border-frame-800/50 bg-frame-900/80 px-4 py-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-frame-800/40 border border-frame-700/30 rounded-lg">
+            <svg className="w-3.5 h-3.5 text-frame-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              value={fileSearch}
+              onChange={e => setFileSearch(e.target.value)}
+              placeholder="Buscar archivos..."
+              className="flex-1 bg-transparent text-xs text-white/70 placeholder-frame-500 focus:outline-none"
+              autoFocus
+            />
+            {fileSearch && (
+              <button onClick={() => setFileSearch('')} className="text-frame-500 hover:text-white">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">

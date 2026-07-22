@@ -50,6 +50,11 @@ function ReviewPage() {
   const [fitMode, setFitMode] = useState<'contain' | 'cover' | 'fill'>('contain');
   const [videoSrc, setVideoSrc] = useState('');
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [unsavedDraft, setUnsavedDraft] = useState(false);
+  const [touchSwipeState, setTouchSwipeState] = useState<{ startX: number; startY: number; startTime: number; seekStart: number; volStart: number } | null>(null);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,6 +63,8 @@ function ReviewPage() {
 
   const socketRef = useRef<any>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasUnsavedRef = useRef(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -183,6 +190,16 @@ function ReviewPage() {
         videoRef.current.currentTime = data.timecode;
       }
     });
+
+    socket.on('typing:update', (data: { userId: string; userName: string }) => {
+      setTypingUsers((prev: string[]) => {
+        if (prev.find(u => u === data.userName)) return prev;
+        return [...prev, data.userName];
+      });
+      setTimeout(() => {
+        setTypingUsers((prev: string[]) => prev.filter(u => u !== data.userName));
+      }, 3000);
+    });
   };
 
   const handleTimeUpdate = () => {
@@ -230,6 +247,58 @@ function ReviewPage() {
   const handleWaiting = () => setVideoBuffering(true);
   const handleCanPlay = () => setVideoBuffering(false);
   const handlePlaying = () => { setPlaying(true); setVideoBuffering(false); };
+
+  const handleContainerMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    socketRef.current?.emit('cursor:moved', { fileId: params.fileId, x, y });
+  };
+
+  const handleVideoTouchStart = (e: React.TouchEvent) => {
+    if (drawing) return;
+    const touch = e.touches[0];
+    setTouchSwipeState({
+      startX: touch.clientX,
+      startY: touch.clientY,
+      startTime: Date.now(),
+      seekStart: currentTime,
+      volStart: volume,
+    });
+  };
+
+  const handleVideoTouchMove = (e: React.TouchEvent) => {
+    if (drawing || !touchSwipeState || !videoRef.current) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchSwipeState.startX;
+    const deltaY = touch.clientY - touchSwipeState.startY;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+
+    if (absX > absY && absX > 20) {
+      const seekDelta = (deltaX / window.innerWidth) * duration;
+      const newTime = Math.max(0, Math.min(duration, touchSwipeState.seekStart + seekDelta));
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    } else if (absY > absX && absY > 20) {
+      const volDelta = (-deltaY / 200);
+      const newVol = Math.max(0, Math.min(1, touchSwipeState.volStart + volDelta));
+      videoRef.current.volume = newVol;
+      setVolume(newVol);
+      if (newVol === 0) setMuted(true);
+      else setMuted(false);
+    }
+  };
+
+  const handleVideoTouchEnd = (_e: React.TouchEvent) => {
+    if (drawing || !touchSwipeState) return;
+    const elapsed = Date.now() - touchSwipeState.startTime;
+    if (elapsed < 200) {
+      togglePlay();
+    }
+    setTouchSwipeState(null);
+  };
 
   const timeUpdateThrottle = useRef(0);
   const handleTimeUpdateThrottled = () => {
@@ -542,6 +611,48 @@ function ReviewPage() {
     }
   }, [currentTime, annotationsList, showAnnotations, videoReady]);
 
+  useEffect(() => {
+    const draftKey = `comment_draft_${params.fileId}`;
+    const saved = localStorage.getItem(draftKey);
+    if (saved && !newComment) {
+      setNewComment(saved);
+    }
+  }, [params.fileId]);
+
+  useEffect(() => {
+    const draftKey = `comment_draft_${params.fileId}`;
+    if (newComment.trim()) {
+      localStorage.setItem(draftKey, newComment);
+      setUnsavedDraft(true);
+      hasUnsavedRef.current = true;
+    } else {
+      localStorage.removeItem(draftKey);
+      setUnsavedDraft(false);
+      hasUnsavedRef.current = false;
+    }
+  }, [newComment, params.fileId]);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, []);
+
+  const emitTyping = useCallback((typing: boolean) => {
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    socketRef.current?.emit('typing', { fileId: params.fileId, typing });
+    if (typing) {
+      typingTimeoutRef.current = setTimeout(() => {
+        socketRef.current?.emit('typing', { fileId: params.fileId, typing: false });
+      }, 2000);
+    }
+  }, [params.fileId]);
+
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     try {
@@ -552,6 +663,9 @@ function ReviewPage() {
       setCommentList((prev: any[]) => [...prev, comment]);
       socketRef.current?.emit('comment:added', { fileId: params.fileId, comment });
       setNewComment('');
+      localStorage.removeItem(`comment_draft_${params.fileId}`);
+      setUnsavedDraft(false);
+      hasUnsavedRef.current = false;
       toast('Comentario agregado', 'success');
     } catch (err: any) {
       toast(err.message, 'error');
@@ -730,12 +844,22 @@ function ReviewPage() {
       <div className="flex-1 overflow-y-auto scrollbar-thin">
         {sidebarTab === 'comments' && (
           <div className="p-3">
+            {typingUsers.length > 0 && (
+              <div className="mb-2 flex items-center gap-1.5 px-2 py-1.5 bg-frame-800/30 rounded-lg animate-pulse">
+                <div className="flex gap-0.5">
+                  <span className="w-1 h-1 bg-frame-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1 h-1 bg-frame-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1 h-1 bg-frame-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <span className="text-[10px] text-frame-400">{typingUsers.join(', ')} {typingUsers.length === 1 ? 'está escribiendo...' : 'están escribiendo...'}</span>
+              </div>
+            )}
             <div className="glass-panel rounded-xl p-2 mb-3 flex gap-2">
               <input
                 type="text"
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+                onChange={(e) => { setNewComment(e.target.value); emitTyping(true); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleAddComment(); else emitTyping(true); }}
                 placeholder={`Comentar en ${formatTime(currentTime)}...`}
                 className="flex-1 px-3 py-2 bg-frame-800/50 border border-frame-700/30 rounded-lg text-white text-xs placeholder-frame-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all"
               />
@@ -968,16 +1092,23 @@ function ReviewPage() {
 
   return (
     <div className="h-screen bg-frame-950 flex flex-col overflow-hidden">
-      <ReviewHeader
-        projectName={file.project_name}
-        projectId={projectId || undefined}
-        fileName={file.original_name}
-        duration={duration}
-        resolution={file.resolution}
-        fps={file.fps}
-        reviewers={onlineReviewers}
-        onBack={() => router.push(`/project/${projectId}`)}
-        onShare={async () => {
+        <ReviewHeader
+          projectName={file.project_name}
+          projectId={projectId || undefined}
+          fileName={file.original_name}
+          duration={duration}
+          resolution={file.resolution}
+          fps={file.fps}
+          reviewers={onlineReviewers}
+          onBack={() => {
+            if (hasUnsavedRef.current) {
+              setPendingNavigation(`/project/${projectId}`);
+              setShowLeaveConfirm(true);
+            } else {
+              router.push(`/project/${projectId}`);
+            }
+          }}
+          onShare={async () => {
           setShareLoading(true);
           try {
             const res = await fetch(`/api/share/create/${params.fileId}`, {
@@ -1003,7 +1134,7 @@ function ReviewPage() {
 
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 flex flex-col bg-black relative review-container" ref={containerRef}>
+        <div className="flex-1 flex flex-col bg-black relative review-container" ref={containerRef} onMouseMove={handleContainerMouseMove}>
           <div className="flex-1 relative flex items-center justify-center">
             {fileProcessing && (
               <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/60">
@@ -1028,8 +1159,8 @@ function ReviewPage() {
 
             <video
               ref={videoRef}
-              className="max-w-full max-h-full outline-none"
-              style={{ objectFit: fitMode }}
+              className="max-w-full max-h-full outline-none select-none"
+              style={{ objectFit: fitMode, touchAction: drawing ? 'none' : 'auto' }}
               src={videoSrc}
               onTimeUpdate={handleTimeUpdateThrottled}
               onLoadedMetadata={handleLoadedMetadata}
@@ -1041,6 +1172,9 @@ function ReviewPage() {
               onPause={() => setPlaying(false)}
               onClick={togglePlay}
               onContextMenu={handleContextMenu}
+              onTouchStart={handleVideoTouchStart}
+              onTouchMove={handleVideoTouchMove}
+              onTouchEnd={handleVideoTouchEnd}
               preload="auto"
               playsInline
             />
@@ -1210,6 +1344,29 @@ function ReviewPage() {
           {renderSidebarContent()}
         </div>
       </div>
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowLeaveConfirm(false)}>
+          <div className="bg-frame-900 rounded-2xl p-6 w-full max-w-sm mx-4 border border-frame-700/50 shadow-2xl shadow-black/20" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">Comentario sin guardar</h3>
+                <p className="text-xs text-frame-400 mt-0.5">Tienes un borrador de comentario sin enviar.</p>
+              </div>
+            </div>
+            <p className="text-xs text-frame-300 mb-6 leading-relaxed">Si sales ahora, perderás el borrador. Podés volver después y se conservará automaticamente.</p>
+            <div className="flex gap-2">
+              <button onClick={() => { setShowLeaveConfirm(false); setPendingNavigation(null); }} className="flex-1 px-4 py-2 bg-frame-800 hover:bg-frame-700 text-frame-300 hover:text-white rounded-xl text-xs font-medium transition-all active:scale-95">Seguir editando</button>
+              <button onClick={() => { setShowLeaveConfirm(false); hasUnsavedRef.current = false; localStorage.removeItem(`comment_draft_${params.fileId}`); if (pendingNavigation) router.push(pendingNavigation); }} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-medium transition-all active:scale-95">Salir sin guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showShareModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowShareModal(false)}>
           <div className="bg-frame-900 rounded-xl p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
