@@ -25,7 +25,6 @@ export async function POST(request: NextRequest, { params }: { params: { fileId:
   return NextResponse.json({
     id: shareId,
     token,
-    url: `${request.nextUrl.origin}/share/${token}`,
     expires_at: expiresAt,
   }, { status: 201 });
 }

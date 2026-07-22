@@ -28,7 +28,7 @@ export default function SharedView() {
       setShowNameInput(false);
     }
     fetch(`/api/share/${params.token}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('Not found'); return r.json(); })
       .then(d => { setData(d); setComments(d.comments || []); })
       .catch(() => setError('Link inválido o expirado'))
       .finally(() => setLoading(false));

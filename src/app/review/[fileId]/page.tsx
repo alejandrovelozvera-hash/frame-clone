@@ -961,7 +961,7 @@ function ReviewPage() {
               body: '{}',
             });
             const data = await res.json();
-            setShareUrl(data.url);
+            setShareUrl(`${window.location.origin}/share/${data.token}`);
             setShowShareModal(true);
             toast('Link de uso compartido creado', 'success');
           } catch {
