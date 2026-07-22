@@ -197,34 +197,4 @@ input[type="range"]::-moz-range-thumb {
   border: none;
 }
 
-@keyframes demo-equalizer {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(2.5); }
-}
-@keyframes demo-play-btn {
-  0%, 60%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  65%, 95% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-}
-@keyframes demo-controls {
-  0%, 65% { opacity: 0; transform: translateY(8px); }
-  80%, 100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes demo-seek {
-  0% { width: 0%; }
-  100% { width: 65%; }
-}
-@keyframes demo-annotation {
-  0%, 60% { opacity: 0; transform: translate(-10px, 10px); }
-  75%, 100% { opacity: 1; transform: translate(0, 0); }
-}
-@keyframes demo-comment {
-  0%, 70% { opacity: 0; transform: translateX(12px); }
-  85%, 100% { opacity: 1; transform: translateX(0); }
-}
 
-.animate-demo-equalizer { animation: demo-equalizer 0.9s ease-in-out infinite; }
-.animate-demo-play-btn { animation: demo-play-btn 5s ease-in-out infinite; }
-.animate-demo-controls { animation: demo-controls 5s ease-in-out infinite; }
-.animate-demo-seek { animation: demo-seek 5s ease-in-out infinite; }
-.animate-demo-annotation { animation: demo-annotation 5s ease-in-out infinite; }
-.animate-demo-comment { animation: demo-comment 5s ease-in-out infinite; }
