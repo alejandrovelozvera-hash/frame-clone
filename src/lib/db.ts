@@ -3,8 +3,8 @@ import path from 'path';
 import fs from 'fs';
 
 export const DATA_DIR = process.env.DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || (process.env.RAILWAY_SERVICE_NAME ? '/data' : path.join(process.cwd(), 'data'));
-export const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads', 'videos');
-export const THUMB_DIR = path.join(path.dirname(UPLOADS_DIR), 'thumbnails');
+export const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads', 'videos');
+export const THUMB_DIR = process.env.THUMB_DIR || path.join(DATA_DIR, 'uploads', 'thumbnails');
 
 const DB_PATH = path.join(DATA_DIR, 'frame-clone.db');
 
