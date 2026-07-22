@@ -197,4 +197,34 @@ input[type="range"]::-moz-range-thumb {
   border: none;
 }
 
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cursorFloat0 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(12px, -8px); }
+  50% { transform: translate(-6px, 6px); }
+  75% { transform: translate(8px, -4px); }
+}
+
+@keyframes cursorFloat1 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-10px, 6px); }
+  50% { transform: translate(8px, -6px); }
+  75% { transform: translate(-6px, 4px); }
+}
+
+@keyframes cursorFloat2 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(6px, 10px); }
+  50% { transform: translate(-12px, -4px); }
+  75% { transform: translate(10px, -8px); }
+}
+
+.animate-cursorFloat0 { animation: cursorFloat0 4s ease-in-out infinite; }
+.animate-cursorFloat1 { animation: cursorFloat1 4s ease-in-out infinite; }
+.animate-cursorFloat2 { animation: cursorFloat2 4s ease-in-out infinite; }
+
 

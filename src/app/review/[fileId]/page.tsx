@@ -1247,7 +1247,7 @@ function ReviewPage() {
           <div className="review-controls glass-panel rounded-none px-4 pb-3 pt-0 border-t border-frame-700/30">
             {/* Full-width seekbar on top */}
             <div className="flex items-center gap-3 -mx-4 px-4 mb-1">
-              <div className="flex-1">
+              <div className="flex-1 relative">
                 <input
                   type="range"
                   min="0"
@@ -1257,6 +1257,16 @@ function ReviewPage() {
                   onChange={(e) => handleSeek(parseFloat(e.target.value))}
                   className="w-full"
                 />
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 pointer-events-none" style={{ height: '4px' }}>
+                  {commentList.filter(c => c.timecode != null && duration > 0).map((c, i) => (
+                    <div
+                      key={c.id || i}
+                      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500/70 hover:bg-blue-400 transition-colors cursor-pointer"
+                      style={{ left: `${Math.min((c.timecode / duration) * 100, 99)}%` }}
+                      title={`${c.author?.name || 'Usuario'} — ${Math.floor(c.timecode / 60)}:${Math.floor(c.timecode % 60).toString().padStart(2, '0')}`}
+                    />
+                  ))}
+                </div>
               </div>
               <span className="text-[11px] text-frame-500 font-mono tabular-nums whitespace-nowrap">{formatTime(duration)}</span>
             </div>

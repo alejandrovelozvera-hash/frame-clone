@@ -66,16 +66,16 @@ export default function DemoLiveCollab() {
             </div>
 
             {/* User cursors */}
-            <div className={`absolute transition-all duration-1000 ${active ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`absolute inset-0 transition-all duration-1000 ${active ? 'opacity-100' : 'opacity-0'}`}>
               {users.map((u, i) => (
-                <div key={u.id} className="absolute flex items-center gap-1 transition-all duration-[3000ms] ease-in-out"
+                <div key={u.id}
+                  className={`absolute transition-all duration-[3000ms] ease-in-out animate-cursorFloat${i}`}
                   style={{
-                    left: active ? `${25 + i * 20}%` : '0%',
-                    top: active ? `${35 + (i % 2) * 25}%` : '50%',
-                    animation: active ? `cursorFloat${i} 4s ease-in-out infinite` : 'none',
+                    left: active ? `${8 + i * 28}%` : '0%',
+                    top: active ? `${30 + i * 14}%` : '50%',
                   }}>
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: u.color }}>
-                    <span className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 text-[7px] font-medium whitespace-nowrap" style={{ color: u.color }}>{u.name}</span>
+                  <div className="relative w-3 h-3 rounded-full" style={{ backgroundColor: u.color }}>
+                    <span className="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-[8px] font-medium whitespace-nowrap px-1 py-0.5 rounded bg-frame-950/80" style={{ color: u.color }}>{u.name}</span>
                   </div>
                 </div>
               ))}
@@ -83,7 +83,7 @@ export default function DemoLiveCollab() {
 
             {/* Comment popups */}
             {commentPhase === 1 && (
-              <div className="absolute top-12 right-6 max-w-[180px] transition-all duration-500 animate-fadeInUp"
+              <div className="absolute top-12 right-6 max-w-[180px] transition-all duration-500"
                 style={{ animation: 'fadeInUp 0.5s ease-out' }}>
                 <div className="bg-frame-800/90 backdrop-blur-sm rounded-xl px-3 py-2 border border-frame-700/50 shadow-xl">
                   <div className="flex items-center gap-1.5 mb-1">
@@ -161,7 +161,7 @@ export default function DemoLiveCollab() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mt-10">
           {[
             { title: 'Cursores en vivo', desc: 'Vé exactamente dónde está mirando cada revisor en el timeline.' },
-            { title: 'Comentarios同步', desc: 'Los comentarios aparecen instantáneamente para todos los conectados.' },
+            { title: 'Comentarios en vivo', desc: 'Los comentarios aparecen instantáneamente para todos los conectados.' },
             { title: 'Presencia en sala', desc: 'Sabé quién está viendo el mismo video en tiempo real.' },
           ].map((f, i) => (
             <div key={i} className="bg-frame-900/50 border border-frame-800/50 rounded-xl p-4 text-center">

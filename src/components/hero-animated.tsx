@@ -47,12 +47,14 @@ export default function HeroAnimated({ onCta }: { onCta: () => void }) {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.06),transparent_70%)]" />
 
             {/* Animated equalizer */}
-            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-end gap-[3px] h-12">
-              {[6,10,5,14,8,16,6,12,7,9].map((h,i) => (
-                <div key={i} className="w-[3px] bg-blue-500/30 rounded-t-sm"
-                  style={{ height: `${h}px`, animation: `pulse 0.8s ease-in-out infinite ${i*80}ms` }} />
-              ))}
-            </div>
+            {phase !== 3 && (
+              <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-end gap-[3px] h-12">
+                {[6,10,5,14,8,16,6,12,7,9].map((h,i) => (
+                  <div key={i} className="w-[3px] bg-blue-500/30 rounded-t-sm"
+                    style={{ height: `${h}px`, animation: `pulse 0.8s ease-in-out infinite ${i*80}ms` }} />
+                ))}
+              </div>
+            )}
 
             {/* Play button */}
             {phase !== 2 && (
@@ -129,7 +131,7 @@ export default function HeroAnimated({ onCta }: { onCta: () => void }) {
             {/* Cursors */}
             {[1, 3].includes(phase) && (
               <div className="absolute w-3 h-3 bg-yellow-400 rounded-full opacity-80 transition-all duration-700"
-                style={{ left: phase === 1 ? '55%' : '45%', top: phase === 1 ? '40%' : '60%' }}>
+                style={{ left: phase === 1 ? '75%' : '30%', top: phase === 1 ? '30%' : '50%' }}>
                 <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[7px] text-yellow-400 whitespace-nowrap">María</span>
               </div>
             )}
