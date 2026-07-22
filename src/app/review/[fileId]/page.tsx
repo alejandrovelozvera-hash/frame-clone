@@ -392,6 +392,59 @@ function ReviewPage() {
     setCurrentDrawPath([]);
   };
 
+  const getCanvasPos = (clientX: number, clientY: number) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 0, y: 0 };
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  };
+
+  const handleCanvasTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!drawing || !canvasRef.current) return;
+    e.preventDefault();
+    const pos = getCanvasPos(e.touches[0].clientX, e.touches[0].clientY);
+    setCurrentDrawPath([pos]);
+  };
+
+  const handleCanvasTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (currentDrawPath.length === 0 || !canvasRef.current) return;
+    e.preventDefault();
+    const pos = getCanvasPos(e.touches[0].clientX, e.touches[0].clientY);
+
+    if (drawingMode === 'freehand') {
+      setCurrentDrawPath((prev: any) => [...prev, pos]);
+      drawPath([...currentDrawPath, pos]);
+    } else {
+      const ctx = canvasRef.current.getContext('2d');
+      if (!ctx) return;
+      const start = currentDrawPath[0];
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      ctx.strokeStyle = drawColor;
+      ctx.lineWidth = 2;
+
+      if (drawingMode === 'arrow') {
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        const angle = Math.atan2(pos.y - start.y, pos.x - start.x);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        ctx.lineTo(pos.x - 10 * Math.cos(angle - 0.4), pos.y - 10 * Math.sin(angle - 0.4));
+        ctx.lineTo(pos.x - 10 * Math.cos(angle + 0.4), pos.y - 10 * Math.sin(angle + 0.4));
+        ctx.closePath();
+        ctx.fillStyle = drawColor;
+        ctx.fill();
+      } else if (drawingMode === 'rectangle') {
+        ctx.strokeRect(start.x, start.y, pos.x - start.x, pos.y - start.y);
+      }
+    }
+  };
+
+  const handleCanvasTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    handleCanvasMouseUp();
+  };
+
   const drawPath = (points: any[]) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -982,6 +1035,9 @@ function ReviewPage() {
                 onMouseMove={drawing ? handleCanvasMouseMove : undefined}
                 onMouseUp={drawing ? handleCanvasMouseUp : undefined}
                 onMouseLeave={drawing ? handleCanvasMouseUp : undefined}
+                onTouchStart={drawing ? handleCanvasTouchStart : undefined}
+                onTouchMove={drawing ? handleCanvasTouchMove : undefined}
+                onTouchEnd={drawing ? handleCanvasTouchEnd : undefined}
               />
             )}
 

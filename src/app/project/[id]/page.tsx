@@ -11,10 +11,11 @@ import { projects, files } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 
 function ProjectPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -235,24 +236,65 @@ function ProjectPage() {
             )}
           </div>
           <div className="flex items-center gap-3">
-            {onlineUsers.length > 0 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/5 border border-green-500/10">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                <span className="text-[10px] text-green-400 font-medium">{onlineUsers.length} online</span>
-              </div>
-            )}
-            {project.members && (
-              <button
-                onClick={() => { loadMembers(); setShowMembers(true); }}
-                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-frame-800/60 text-frame-400 hover:text-frame-200 transition-colors"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            {/* Desktop: user name */}
+            <div className="hidden sm:flex items-center gap-3">
+              {onlineUsers.length > 0 && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/5 border border-green-500/10">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                  <span className="text-[10px] text-green-400 font-medium">{onlineUsers.length} online</span>
+                </div>
+              )}
+              {project.members && (
+                <button
+                  onClick={() => { loadMembers(); setShowMembers(true); }}
+                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-frame-800/60 text-frame-400 hover:text-frame-200 transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                  </svg>
+                  Miembros
+                </button>
+              )}
+              <span className="text-sm text-frame-400">{user?.name}</span>
+            </div>
+
+            {/* Mobile: hamburger */}
+            <div className="sm:hidden relative">
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-1.5 text-frame-400 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
-                Miembros
               </button>
-            )}
-            <span className="text-sm text-frame-400">{user?.name}</span>
+              {mobileMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setMobileMenuOpen(false)} />
+                  <div className="absolute right-0 top-8 w-48 bg-frame-800 border border-frame-700/50 rounded-xl shadow-2xl shadow-black/30 py-1 z-50 backdrop-blur-xl">
+                    <div className="px-3 py-2 border-b border-white/[0.06]">
+                      <p className="text-xs font-medium text-white/80">{user?.name || 'Usuario'}</p>
+                      <p className="text-[10px] text-frame-500">{user?.email}</p>
+                    </div>
+                    <button
+                      onClick={() => { setMobileMenuOpen(false); router.push('/profile'); }}
+                      className="w-full px-3 py-2 text-left text-xs text-frame-300 hover:bg-white/5 flex items-center gap-2 transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                      </svg>
+                      Perfil
+                    </button>
+                    <button
+                      onClick={() => { setMobileMenuOpen(false); logout(); router.push('/'); }}
+                      className="w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-white/5 flex items-center gap-2 transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                      </svg>
+                      Cerrar sesión
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>

@@ -6,7 +6,7 @@ import ClientLayout from '@/components/client-layout'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'FrameClone - Video Review Platform',
+  title: 'Video Auditor',
   description: 'Collaborative video review and approval platform',
 }
 

@@ -82,7 +82,7 @@ export default function BottomNav() {
               onPointerDown={() => setPressedId(tab.id)}
               onPointerUp={() => setPressedId(null)}
               onPointerLeave={() => setPressedId(null)}
-              className="relative flex flex-col items-center gap-0.5 py-1.5 w-[72px] transition-all duration-150 select-none"
+              className="relative flex flex-col items-center gap-0.5 py-1.5 w-[72px] transition-all duration-150 select-none touch-manipulation"
             >
               <div className={`relative flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 ${
                 active
