@@ -4,6 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import ProductDemo from '@/components/product-demo';
+import HeroAnimated from '@/components/hero-animated';
+import DemoAnnotations from '@/components/demo-annotations';
+import DemoLiveCollab from '@/components/demo-live-collab';
+import DemoVersions from '@/components/demo-versions';
+import DemoMobile from '@/components/demo-mobile';
+import Demotestimonials from '@/components/demo-testimonials';
 
 function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -135,47 +141,7 @@ function LoginPage() {
         )}
       </nav>
 
-      {/* Hero */}
-      <section className="pt-28 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-[11px] text-blue-400 font-medium mb-6">
-            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-            Colaboración en tiempo real
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-            Revisa videos en equipo,
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">frame por frame</span>
-          </h1>
-          <p className="text-frame-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-            La plataforma colaborativa de revisión de video que permite a equipos creativos
-            compartir, comentar y aprobar contenido audiovisual con precisión de frame y
-            cursores en vivo.
-          </p>
-          <div className="flex items-center justify-center gap-3 sm:gap-4">
-            <button onClick={() => openAuth('register')} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-all active:scale-95 shadow-lg shadow-blue-600/20">
-              Comenzar gratis
-            </button>
-            <button onClick={() => scrollTo('how-it-works')} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-xl text-sm font-medium transition-all border border-white/[0.06]">
-              Cómo funciona
-            </button>
-          </div>
-          <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8 text-[11px] sm:text-xs text-frame-500">
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-              Sin instalación
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-              Colaboración en vivo
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-              Frame-accurate
-            </span>
-          </div>
-        </div>
-      </section>
+      <HeroAnimated onCta={() => openAuth('register')} />
 
       {/* Features */}
       <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-frame-900/30">
@@ -197,6 +163,11 @@ function LoginPage() {
       </section>
 
       <ProductDemo />
+      <DemoLiveCollab />
+      <DemoAnnotations />
+      <DemoVersions />
+      <DemoMobile />
+      <Demotestimonials />
 
       {/* Free tag */}
       <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-frame-900/30">
