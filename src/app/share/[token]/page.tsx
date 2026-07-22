@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useToast } from '@/components/toast';
 import { LoadingSkeleton } from '@/components/loading-skeleton';
+import Hls from 'hls.js';
 
 export default function SharedView() {
   const params = useParams();
@@ -20,6 +21,7 @@ export default function SharedView() {
   const [showNameInput, setShowNameInput] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<Hls | null>(null);
 
   useEffect(() => {
     const name = localStorage.getItem('share_visitor_name');
@@ -33,6 +35,20 @@ export default function SharedView() {
       .catch(() => setError('Link inválido o expirado'))
       .finally(() => setLoading(false));
   }, [params.token]);
+
+  useEffect(() => {
+    if (!data || !videoRef.current) return;
+    if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
+    if (data.hls_path && Hls.isSupported()) {
+      const hls = new Hls();
+      hlsRef.current = hls;
+      hls.loadSource(`/api/files/hls/${data.file_id}?path=master.m3u8`);
+      hls.attachMedia(videoRef.current);
+    }
+    return () => {
+      if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
+    };
+  }, [data]);
 
   const handleTimeUpdate = () => {
     if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
@@ -112,7 +128,7 @@ export default function SharedView() {
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
               style={{ objectFit: 'contain' }}
-              src={`/api/files/stream/${data.file_id}`}
+              src={data.hls_path && Hls.isSupported() ? undefined : `/api/files/stream/${data.file_id}`}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onPlay={() => setPlaying(true)}

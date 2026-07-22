@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 import db from '@/lib/db';
+import { getR2PublicUrl } from '@/lib/storage';
 
 const MIME_TYPES: Record<string, string> = {
   '.mp4': 'video/mp4',
@@ -50,7 +51,18 @@ export async function GET(request: NextRequest, { params }: { params: { fileId: 
   }
 
   const version = db.prepare('SELECT * FROM versions WHERE file_id = ? ORDER BY version_number DESC LIMIT 1').get(params.fileId) as any;
-  if (!version || !version.file_path || !fs.existsSync(version.file_path)) {
+  if (!version) {
+    return new Response('File not found', { status: 404 });
+  }
+
+  if (version.r2_key) {
+    const publicUrl = getR2PublicUrl(version.r2_key);
+    if (publicUrl) {
+      return Response.redirect(publicUrl, 307);
+    }
+  }
+
+  if (!version.file_path || !fs.existsSync(version.file_path)) {
     return new Response('File not found on disk', { status: 404 });
   }
 
@@ -124,7 +136,16 @@ export async function HEAD(request: NextRequest, { params }: { params: { fileId:
   if (file.status === 'error') return new Response(null, { status: 500 });
 
   const version = db.prepare('SELECT * FROM versions WHERE file_id = ? ORDER BY version_number DESC LIMIT 1').get(params.fileId) as any;
-  if (!version || !version.file_path || !fs.existsSync(version.file_path)) {
+  if (!version) return new Response(null, { status: 404 });
+
+  if (version.r2_key) {
+    const publicUrl = getR2PublicUrl(version.r2_key);
+    if (publicUrl) {
+      return Response.redirect(publicUrl, 307);
+    }
+  }
+
+  if (!version.file_path || !fs.existsSync(version.file_path)) {
     return new Response(null, { status: 404 });
   }
 

@@ -7,6 +7,8 @@ import Busboy from '@fastify/busboy';
 import db, { UPLOADS_DIR, THUMB_DIR } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 import { needsTranscode, transcodeToH264, getTranscodedPath, extractThumbnail, getVideoDimensions } from '@/lib/transcode';
+import { uploadFileFromPath, getR2Key, r2Enabled } from '@/lib/storage';
+import { convertToHls } from '@/lib/hls';
 
 export async function POST(request: NextRequest, { params }: { params: { projectId: string } }) {
   const payload = verifyToken(request);
@@ -80,6 +82,12 @@ export async function POST(request: NextRequest, { params }: { params: { project
             db.prepare('UPDATE files SET status = ? WHERE id = ?').run('ready', fileId);
           }
 
+          if (r2Enabled()) {
+            const r2Key = getR2Key(fileId, 1, fileName);
+            await uploadFileFromPath(filePath, r2Key, fileMime);
+            db.prepare('UPDATE versions SET r2_key = ? WHERE id = ?').run(r2Key, versionId);
+          }
+
           const thumbPath = extractThumbnail(filePath, THUMB_DIR, fileName);
           const dims = await getVideoDimensions(filePath);
 
@@ -91,6 +99,11 @@ export async function POST(request: NextRequest, { params }: { params: { project
             vals.push(fileId);
             const sql3 = "UPDATE files SET " + updates.join(", ") + " WHERE id = ?";
             db.prepare(sql3).run(...vals);
+          }
+
+          const hlsResult = await convertToHls(filePath, fileId, 1, fileName);
+          if (hlsResult) {
+            db.prepare('UPDATE files SET hls_path = ? WHERE id = ?').run(hlsResult, fileId);
           }
         } catch (e) {
           try { db.prepare('UPDATE files SET status = ? WHERE id = ?').run('error', fileId); } catch (e2) {}

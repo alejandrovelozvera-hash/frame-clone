@@ -106,5 +106,7 @@ try {
     FOREIGN KEY (comment_id) REFERENCES comments(id)
   )`);
 } catch {}
+try { db.exec("ALTER TABLE versions ADD COLUMN r2_key TEXT"); } catch {}
+try { db.exec("ALTER TABLE files ADD COLUMN hls_path TEXT"); } catch {}
 
 export default db;

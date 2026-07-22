@@ -9,6 +9,7 @@ import { useToast } from '@/components/toast';
 import { LoadingSkeleton } from '@/components/loading-skeleton';
 import CommentsPanel from '@/components/comments-panel';
 import ReviewHeader from '@/components/review-header';
+import Hls from 'hls.js';
 
 function ReviewPage() {
   const { user, loading: authLoading } = useAuth();
@@ -56,6 +57,7 @@ function ReviewPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const socketRef = useRef<any>(null);
+  const hlsRef = useRef<Hls | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -70,6 +72,10 @@ function ReviewPage() {
       if (socketRef.current) {
         socketRef.current.emit('leave:file', params.fileId);
       }
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
     };
   }, [user, authLoading, params.fileId]);
 
@@ -82,7 +88,29 @@ function ReviewPage() {
       setFileProcessing(data.status === 'processing');
 
       if (data.status !== 'processing' && data.status !== 'error') {
-        setVideoSrc(`/api/files/stream/${params.fileId}?t=${Date.now()}`);
+        if (data.hls_path && Hls.isSupported()) {
+          setVideoSrc('');
+          setTimeout(() => {
+            if (videoRef.current) {
+              if (hlsRef.current) { hlsRef.current.destroy(); }
+              const hls = new Hls();
+              hlsRef.current = hls;
+              hls.loadSource(`/api/files/hls/${params.fileId}?path=master.m3u8`);
+              hls.attachMedia(videoRef.current);
+              hls.on(Hls.Events.MANIFEST_PARSED, () => { setVideoReady(true); });
+              hls.on(Hls.Events.ERROR, (event, data) => {
+                if (data.fatal) {
+                  console.warn('HLS error, falling back to direct stream');
+                  hls.destroy();
+                  hlsRef.current = null;
+                  setVideoSrc(`/api/files/stream/${params.fileId}?t=${Date.now()}`);
+                }
+              });
+            }
+          }, 0);
+        } else {
+          setVideoSrc(`/api/files/stream/${params.fileId}?t=${Date.now()}`);
+        }
       }
 
       const annots = await annotationsApi.list(params.fileId as string);
