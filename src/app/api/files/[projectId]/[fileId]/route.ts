@@ -38,6 +38,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { proje
   if (!file) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const versions = db.prepare('SELECT * FROM versions WHERE file_id = ?').all(params.fileId) as any[];
+  db.prepare('DELETE FROM shared_links WHERE file_id = ?').run(params.fileId);
+  db.prepare('DELETE FROM comment_reactions WHERE comment_id IN (SELECT id FROM comments WHERE file_id = ?)').run(params.fileId);
   db.prepare('DELETE FROM comments WHERE file_id = ?').run(params.fileId);
   db.prepare('DELETE FROM annotations WHERE file_id = ?').run(params.fileId);
   db.prepare('DELETE FROM reviews WHERE file_id = ?').run(params.fileId);
