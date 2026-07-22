@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
+import ProductDemo from '@/components/product-demo';
 
 function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -77,13 +78,6 @@ function LoginPage() {
       title: 'Flujo de Aprobación',
       desc: 'Define ciclos de revisión, solicita cambios, aprueba versiones y haz seguimiento de todo el proceso con un registro claro y trazable.',
     },
-  ];
-
-  const steps = [
-    { num: '01', title: 'Sube tu video', desc: 'Carga tu archivo de video en segundos. Soportamos MP4, MOV y los formatos más comunes.' },
-    { num: '02', title: 'Compártelo con tu equipo', desc: 'Invita revisores por link o email. Cada uno ve el mismo video sincronizado en tiempo real.' },
-    { num: '03', title: 'Revisa y comenta', desc: 'Pausa en cualquier frame, dibuja anotaciones, deja comentarios con timestamp y reacciona con emojis.' },
-    { num: '04', title: 'Aprueba y finaliza', desc: 'Resuelve comentarios, marca versiones como aprobadas y exporta el historial completo de la revisión.' },
   ];
 
   const scrollTo = (id: string) => {
@@ -202,28 +196,7 @@ function LoginPage() {
         </div>
       </section>
 
-      {/* How it Works */}
-      <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4">En 4 pasos</h2>
-            <p className="text-frame-400 text-sm sm:text-base">De la carga a la aprobación, sin complicaciones.</p>
-          </div>
-          <div className="space-y-8 sm:space-y-12">
-            {steps.map((s, i) => (
-              <div key={i} className="flex items-start gap-4 sm:gap-6 group">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
-                  <span className="text-blue-400 font-bold text-sm sm:text-base">{s.num}</span>
-                </div>
-                <div className="pt-1.5 sm:pt-2">
-                  <h3 className="text-white font-semibold text-sm sm:text-base mb-1.5">{s.title}</h3>
-                  <p className="text-frame-400 text-xs sm:text-sm leading-relaxed max-w-lg">{s.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ProductDemo />
 
       {/* Free tag */}
       <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-frame-900/30">
