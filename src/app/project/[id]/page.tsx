@@ -30,6 +30,7 @@ function ProjectPage() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [deleteConfirmFileId, setDeleteConfirmFileId] = useState<string | null>(null);
   const [removeMemberConfirmId, setRemoveMemberConfirmId] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -98,8 +99,8 @@ function ProjectPage() {
     }
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleUpload = async (fileOrEvent: File | React.ChangeEvent<HTMLInputElement>) => {
+    const file = fileOrEvent instanceof File ? fileOrEvent : fileOrEvent.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
@@ -335,21 +336,30 @@ function ProjectPage() {
                 <span className="text-[10px] text-frame-400 font-mono">{uploadProgress}%</span>
               </div>
             )}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-all active:scale-[0.97] disabled:opacity-50 flex items-center gap-2"
+            <div
+              onClick={() => !uploading && fileInputRef.current?.click()}
+              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); if (!uploading) setDragOver(true); }}
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if (!uploading) setDragOver(true); }}
+              onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); }}
+              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); if (!uploading) { const f = e.dataTransfer.files?.[0]; if (f) handleUpload(f); } }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.97] select-none flex items-center gap-2 cursor-pointer ${
+                uploading
+                  ? 'bg-frame-800 text-frame-400 cursor-not-allowed'
+                  : dragOver
+                    ? 'bg-blue-600 text-white ring-2 ring-blue-400 ring-offset-2 ring-offset-frame-950'
+                    : 'bg-blue-600 hover:bg-blue-500 text-white'
+              }`}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              {uploading ? 'Subiendo...' : 'Subir video'}
-            </button>
+              <span className="truncate">{uploading ? 'Subiendo...' : dragOver ? 'Soltar video' : 'Subir video'}</span>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
               accept="video/*,.mp4,.mov,.avi,.mkv,.webm,.wmv"
-              onChange={handleUpload}
+              onChange={(e) => handleUpload(e)}
               className="hidden"
             />
           </div>
@@ -368,7 +378,16 @@ function ProjectPage() {
         )}
 
         {filteredFiles.length === 0 ? (
-          <div className="text-center py-24 flex flex-col items-center">
+          <div
+            onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }}
+            onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); }}
+            onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) handleUpload(f); }}
+            className={`text-center py-24 flex flex-col items-center rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+              dragOver ? 'border-blue-400 bg-blue-500/5' : 'border-transparent'
+            }`}
+            onClick={() => !uploading && fileInputRef.current?.click()}
+          >
             <div className="w-16 h-16 rounded-2xl bg-frame-900/80 border border-frame-800/50 flex items-center justify-center mb-5">
               <svg className="w-7 h-7 text-frame-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
