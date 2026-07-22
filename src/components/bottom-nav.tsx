@@ -1,6 +1,5 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
 import { useState } from 'react';
 
 const tabs = [
@@ -39,29 +38,22 @@ const tabs = [
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
   const [pressedId, setPressedId] = useState<string | null>(null);
 
   const isActive = (tab: typeof tabs[0]) => {
     if (tab.id === 'dashboard') return pathname === '/dashboard' || pathname.startsWith('/project/');
+    if (tab.id === 'profile') return pathname === '/profile';
     return false;
   };
 
   const handlePress = (tab: typeof tabs[0]) => {
     if (tab.id === 'profile') {
-      logout();
-      router.push('/');
+      router.push('/profile');
     } else if (tab.id === 'upload') {
-      const back = pathname.startsWith('/project/') ? pathname : '/dashboard';
-      const token = localStorage.getItem('token');
-      const projectId = back === '/dashboard'
-        ? null
-        : pathname.split('/project/')[1]?.split('/')[0];
-      if (projectId) {
-        router.push(back);
-        setTimeout(() => {
-          document.dispatchEvent(new CustomEvent('open-upload', { detail: { projectId } }));
-        }, 100);
+      const match = pathname.match(/^\/project\/([^/]+)/);
+      if (match) {
+        const projectId = match[1];
+        document.dispatchEvent(new CustomEvent('open-upload', { detail: { projectId } }));
       } else {
         router.push('/dashboard');
       }
