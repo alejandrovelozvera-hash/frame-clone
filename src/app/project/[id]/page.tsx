@@ -29,6 +29,7 @@ function ProjectPage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteLoading, setInviteLoading] = useState(false);
   const [deleteConfirmFileId, setDeleteConfirmFileId] = useState<string | null>(null);
+  const [removeMemberConfirmId, setRemoveMemberConfirmId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -196,13 +197,13 @@ function ProjectPage() {
   };
 
   const handleRemoveMember = async (userId: string) => {
-    if (!confirm('¿Remover este miembro?')) return;
     try {
       const token = localStorage.getItem('token');
       await fetch(`/api/projects/${params.id}/members/${userId}`, {
         method: 'DELETE',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
+      setRemoveMemberConfirmId(null);
       toast('Miembro removido', 'success');
       loadMembers();
     } catch (err: any) {
@@ -527,7 +528,7 @@ function ProjectPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-frame-500 capitalize">{m.role || 'viewer'}</span>
                     {m.role !== 'owner' && (
-                      <button onClick={() => handleRemoveMember(m.userId || m.id)} className="p-1 text-frame-600 hover:text-red-400 transition-colors">
+                      <button onClick={() => setRemoveMemberConfirmId(m.userId || m.id)} className="p-1 text-frame-600 hover:text-red-400 transition-colors">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -565,6 +566,29 @@ function ProjectPage() {
               <button onClick={() => handleDeleteFile(deleteConfirmFileId)} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-medium transition-all active:scale-95">
                 Eliminar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {removeMemberConfirmId && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setRemoveMemberConfirmId(null)}>
+          <div className="bg-frame-900 rounded-2xl p-6 w-full max-w-sm mx-4 border border-frame-700/50 shadow-2xl shadow-black/20" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">Remover miembro</h3>
+                <p className="text-xs text-frame-400 mt-0.5">El miembro perderá acceso al proyecto.</p>
+              </div>
+            </div>
+            <p className="text-xs text-frame-300 mb-6 leading-relaxed">¿Estás seguro de remover este miembro del proyecto? Podrás invitarlo nuevamente más tarde.</p>
+            <div className="flex gap-2">
+              <button onClick={() => setRemoveMemberConfirmId(null)} className="flex-1 px-4 py-2 bg-frame-800 hover:bg-frame-700 text-frame-300 hover:text-white rounded-xl text-xs font-medium transition-all active:scale-95">Cancelar</button>
+              <button onClick={() => handleRemoveMember(removeMemberConfirmId)} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-medium transition-all active:scale-95">Remover</button>
             </div>
           </div>
         </div>

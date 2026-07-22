@@ -20,6 +20,8 @@ function DashboardPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [deleteConfirmProjectId, setDeleteConfirmProjectId] = useState<string | null>(null);
+  const [showCleanupConfirm, setShowCleanupConfirm] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -64,13 +66,29 @@ function DashboardPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este proyecto?')) return;
     try {
       await projects.delete(id);
       setProjectList(projectList.filter(p => p.id !== id));
+      setDeleteConfirmProjectId(null);
       toast('Proyecto eliminado', 'success');
     } catch (err: any) {
       toast(err.message, 'error');
+    }
+  };
+
+  const handleCleanup = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/cron/cleanup', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      const data = await res.json();
+      setShowCleanupConfirm(false);
+      toast(`Eliminados ${data.deleted} archivos (${(data.freed / 1024 / 1024).toFixed(1)}MB liberados)`, 'success');
+      window.location.reload();
+    } catch (err: any) {
+      toast('Error al limpiar: ' + err.message, 'error');
     }
   };
 
@@ -109,6 +127,7 @@ function DashboardPage() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-frame-950 pb-20 lg:pb-0">
       <header className="border-b border-frame-800/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -253,21 +272,7 @@ function DashboardPage() {
               Almacenamiento
             </button>
             <button
-              onClick={async () => {
-                if (!confirm('¿Eliminar videos subidos hace más de 7 días?')) return;
-                try {
-                  const token = localStorage.getItem('token');
-                  const res = await fetch('/api/cron/cleanup', {
-                    headers: token ? { Authorization: `Bearer ${token}` } : {}
-                  });
-                  if (!res.ok) throw new Error((await res.json()).error);
-                  const data = await res.json();
-                  toast(`Eliminados ${data.deleted} archivos (${(data.freed / 1024 / 1024).toFixed(1)}MB liberados)`, 'success');
-                  window.location.reload();
-                } catch (err: any) {
-                  toast('Error al limpiar: ' + err.message, 'error');
-                }
-              }}
+              onClick={() => setShowCleanupConfirm(true)}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-frame-800/60 text-frame-400 hover:text-red-400 transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -359,7 +364,7 @@ function DashboardPage() {
                       </div>
                       <h3 className="text-white font-semibold truncate flex-1 text-sm mt-0.5">{project.name}</h3>
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
+                        onClick={(e) => { e.stopPropagation(); setDeleteConfirmProjectId(project.id); }}
                         className="text-frame-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all ml-2 mt-0.5"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -394,6 +399,53 @@ function DashboardPage() {
       </main>
         <BottomNav />
       </div>
+
+      {deleteConfirmProjectId && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setDeleteConfirmProjectId(null)}>
+          <div className="bg-frame-900 rounded-2xl p-6 w-full max-w-sm mx-4 border border-frame-700/50 shadow-2xl shadow-black/20" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">Eliminar proyecto</h3>
+                <p className="text-xs text-frame-400 mt-0.5">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <p className="text-xs text-frame-300 mb-6 leading-relaxed">¿Estás seguro de eliminar este proyecto? Todos los archivos, comentarios y miembros asociados también se eliminarán.</p>
+            <div className="flex gap-2">
+              <button onClick={() => setDeleteConfirmProjectId(null)} className="flex-1 px-4 py-2 bg-frame-800 hover:bg-frame-700 text-frame-300 hover:text-white rounded-xl text-xs font-medium transition-all active:scale-95">Cancelar</button>
+              <button onClick={() => handleDelete(deleteConfirmProjectId)} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-medium transition-all active:scale-95">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCleanupConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowCleanupConfirm(false)}>
+          <div className="bg-frame-900 rounded-2xl p-6 w-full max-w-sm mx-4 border border-frame-700/50 shadow-2xl shadow-black/20" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">Limpiar almacenamiento</h3>
+                <p className="text-xs text-frame-400 mt-0.5">Libera espacio en el servidor.</p>
+              </div>
+            </div>
+            <p className="text-xs text-frame-300 mb-6 leading-relaxed">¿Eliminar videos subidos hace más de 7 días? Los comentarios y anotaciones de esos videos también se eliminarán. Esta acción no se puede deshacer.</p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowCleanupConfirm(false)} className="flex-1 px-4 py-2 bg-frame-800 hover:bg-frame-700 text-frame-300 hover:text-white rounded-xl text-xs font-medium transition-all active:scale-95">Cancelar</button>
+              <button onClick={handleCleanup} className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl text-xs font-medium transition-all active:scale-95">Limpiar</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
