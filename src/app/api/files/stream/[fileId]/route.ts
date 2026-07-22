@@ -66,9 +66,19 @@ export async function GET(request: NextRequest, { params }: { params: { fileId: 
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
     'Access-Control-Allow-Headers': 'Range, Content-Type',
-    'Cache-Control': 'no-cache',
+    'Cache-Control': 'public, max-age=86400',
     'Content-Disposition': 'inline',
   };
+
+  if (stat.mtimeMs) {
+    baseHeaders['Last-Modified'] = new Date(stat.mtimeMs).toUTCString();
+  }
+  const etag = `"${stat.size}-${stat.mtimeMs}"`;
+  baseHeaders['ETag'] = etag;
+
+  if (request.headers.get('if-none-match') === etag) {
+    return new Response(null, { status: 304, headers: baseHeaders });
+  }
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: baseHeaders });

@@ -112,7 +112,7 @@ export default function SharedView() {
               ref={videoRef}
               className="max-w-full max-h-full outline-none"
               style={{ objectFit: 'contain' }}
-              src={`/api/files/stream/${data.file_id}?t=${Date.now()}`}
+              src={`/api/files/stream/${data.file_id}`}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onPlay={() => setPlaying(true)}
