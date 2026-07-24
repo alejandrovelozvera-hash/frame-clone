@@ -2,10 +2,10 @@
 import { useEffect, useRef, useState } from 'react';
 
 const steps = [
-  { id: 'upload', label: 'Subí tu video', desc: 'Arrastrá y soltá cualquier formato. Se optimiza para streaming rápido.' },
-  { id: 'comment', label: 'Comentá en cualquier frame', desc: 'Pausá el video, señalá con el mouse o el dedo, y dejá un comentario con timestamp exacto.' },
-  { id: 'annotate', label: 'Dibujá anotaciones', desc: 'Flechas, rectángulos o dibujo libre. Tus marcas quedan sincronizadas con el frame.' },
-  { id: 'approve', label: 'Aprobá y compartí', desc: 'Resolvé comentarios, compartí un link público y cerrá la revisión.' },
+  { id: 'upload', label: 'Sube tu video', desc: 'Arrastra y suelta cualquier formato. Se optimiza para streaming rápido.' },
+  { id: 'comment', label: 'Comenta en cualquier frame', desc: 'Pausa el video, señala con el mouse o el dedo, y deja un comentario con timestamp exacto.' },
+  { id: 'annotate', label: 'Dibuja anotaciones', desc: 'Flechas, rectángulos o dibujo libre. Tus marcas quedan sincronizadas con el frame.' },
+  { id: 'approve', label: 'Aprueba y comparte', desc: 'Resuelve comentarios, comparte un link público y cierra la revisión.' },
 ];
 
 const ANIMATION_DELAY = 4500;

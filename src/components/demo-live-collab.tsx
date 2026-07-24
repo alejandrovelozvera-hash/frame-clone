@@ -93,7 +93,7 @@ export default function DemoLiveCollab() {
                     <span className="text-[9px] text-white/70 font-medium">María</span>
                     <span className="text-[8px] text-frame-500 ml-auto">1:05</span>
                   </div>
-                  <p className="text-[10px] text-white/80 leading-relaxed">La transición de acá está muy lenta, habría que acortarla</p>
+                  <p className="text-[10px] text-white/80 leading-relaxed">La transición de aquí está muy lenta, habría que acortarla</p>
                 </div>
               </div>
             )}
@@ -160,9 +160,9 @@ export default function DemoLiveCollab() {
         {/* Feature cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mt-10">
           {[
-            { title: 'Cursores en vivo', desc: 'Vé exactamente dónde está mirando cada revisor en el timeline.' },
+            { title: 'Cursores en vivo', desc: 'Ve exactamente dónde está mirando cada revisor en el timeline.' },
             { title: 'Comentarios en vivo', desc: 'Los comentarios aparecen instantáneamente para todos los conectados.' },
-            { title: 'Presencia en sala', desc: 'Sabé quién está viendo el mismo video en tiempo real.' },
+            { title: 'Presencia en sala', desc: 'Sabe quién está viendo el mismo video en tiempo real.' },
           ].map((f, i) => (
             <div key={i} className="bg-frame-900/50 border border-frame-800/50 rounded-xl p-4 text-center">
               <h4 className="text-white text-xs font-semibold mb-1">{f.title}</h4>

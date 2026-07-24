@@ -95,7 +95,7 @@ export default function DemoMobile() {
                     <span className="text-[7px] text-yellow-400 font-medium">M</span>
                   </div>
                   <div className="flex-1 bg-frame-800/50 rounded-lg px-2.5 py-2 border border-frame-800/30">
-                    <p className="text-[9px] text-white/70">El movimiento de cámara acá no me convence</p>
+                    <p className="text-[9px] text-white/70">El movimiento de cámara aquí no me convence</p>
                     <span className="text-[7px] text-blue-400/60 font-mono mt-1 block">1:23</span>
                   </div>
                 </div>
